@@ -101,26 +101,28 @@
             </div>
             
             <div id="leader-items-container" class="space-y-6">
-                <p class="text-xs text-center text-[var(--text-dim)] py-4">Fetching active inventory database lines...</p>
+                <p class="text-xs text-center text-[var(--text-dim)] py-8 bg-[var(--surface-2)] border border-dashed border-[var(--border)] rounded-2xl">
+                    No items found. Use the section below to add your first farm item!
+                </p>
             </div>
 
             <div class="pt-4 space-y-2.5 shadow-xs p-3 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
                 <span class="eyebrow block text-[var(--accent)] font-bold">Add Missing / Custom Needed Item</span>
-                <input type="text" id="new-item-name" placeholder="Item name..." class="w-full text-xs px-3 py-2.5 rounded-xl bg-[var(--bg-soft)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
+                <input type="text" id="new-item-name" placeholder="Item name..." class="w-full text-xs px-3 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
                 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Target Area</label>
-                        <select id="new-item-area" class="select-custom w-full rounded-xl"></select>
+                        <select id="new-item-area" class="select-custom w-full rounded-xl bg-[var(--surface)]"></select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Category</label>
-                        <select id="new-item-cat" class="select-custom w-full rounded-xl">
+                        <select id="new-item-cat" class="select-custom w-full rounded-xl bg-[var(--surface)]">
                             <option>Syncing list...</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="addNewItemByLeader()" class="w-full py-2 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add Item to Checklist</button>
+                <button onclick="addNewItemByLeader()" class="w-full py-2.5 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add Item to Checklist</button>
             </div>
 
             <div class="pt-2">
@@ -226,19 +228,18 @@
             <span class="nav-label">Ops Home</span>
         </button>
         <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn flex flex-col items-center gap-1 py-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.954 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
             <span class="nav-label">Manager</span>
         </button>
     </nav>
 
     <script>
-        // PASTE YOUR RE-DEPLOYED WEB APP URL HERE:
-        const GAS_DEPLOYMENT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; 
+        // PASTE YOUR RE-DEPLOYED GOOGLE APPS SCRIPT URL STRING HERE:
+        const GAS_DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbxg5YvWtLtEC_cleqPbNvmtNF3I6EoLK8ygu81WJOVr6jzyhVUuxJU2lgfdK4AENDCg/exec"; 
         
         const MASTER_PIN = "3653";
         const AREALIST = ["Sea Cage", "Farm Maintenance", "Spawning & Spat", "Staff Welfare"];
         let dynamicCategoryList = [];
-
         let inventoryDataset = [];
         let newlyAddedCustomItems = [];
 
@@ -257,14 +258,10 @@
         }
 
         async function fetchActiveSheetsDatabase() {
+            // If URL is not linked yet, initialize with zero items (completely clean framework state)
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
                 dynamicCategoryList = ["Construction", "Tools & Maintenance", "Equipment & Machinery", "Electrical & Utilities", "Processing Supplies", "Office Supplies", "Cleaning & Hygiene", "Beverages & Food"];
-                inventoryDataset = [
-                    { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20, area: "Sea Cage", category: "Construction" },
-                    { id: "item_2", name: "Submersible Water Pump 1HP", current: 2, min_required: 4, area: "Spawning & Spat", category: "Equipment & Machinery" },
-                    { id: "item_3", name: "PVC Mainline Valves 50mm", current: 19, min_required: 15, area: "Farm Maintenance", category: "Tools & Maintenance" },
-                    { id: "item_4", name: "Drinking Water Carton Case", current: 3, min_required: 10, area: "Staff Welfare", category: "Beverages & Food" }
-                ];
+                inventoryDataset = []; // Zero items fallback
                 updateCategoryDropdownUI();
                 renderLeaderInputForm();
                 renderManagerLedger();
@@ -274,7 +271,7 @@
                 const response = await fetch(`${GAS_DEPLOYMENT_URL}?action=getItems&pin=${MASTER_PIN}`);
                 const resData = await response.json();
                 if (resData.status === "success") {
-                    inventoryDataset = resData.data;
+                    inventoryDataset = resData.data || [];
                     dynamicCategoryList = resData.categories || [];
                     
                     updateCategoryDropdownUI();
@@ -284,7 +281,6 @@
             } catch (err) { console.error("Sheets sync drop:", err); }
         }
 
-        /* ── Action: POST request data payload to append new category row ── */
         async function submitNewCategoryToSheets() {
             const catInput = document.getElementById('new-category-name');
             const catName = catInput.value.trim();
@@ -303,7 +299,7 @@
             };
 
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                alert(`Mockup execution success! Added category: "${catName}"`);
+                alert(`Offline Mockup Success! Category Added: "${catName}"`);
                 dynamicCategoryList.push(catName);
                 updateCategoryDropdownUI();
                 catInput.value = "";
@@ -319,12 +315,11 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataPayload)
                 });
-                
-                alert(`✓ Category "${catName}" added successfully to the Google Sheet!`);
+                alert(`✓ Category "${catName}" successfully added!`);
                 catInput.value = "";
-                fetchActiveSheetsDatabase(); // Reload lists instantly
+                fetchActiveSheetsDatabase();
             } catch (err) {
-                alert("Network communication timeout: " + err);
+                alert("Timeout error: " + err);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Save Category to Database";
@@ -333,8 +328,16 @@
 
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
-            container.innerHTML = "";
+            
+            if (inventoryDataset.length === 0) {
+                container.innerHTML = `
+                    <p class="text-xs text-center text-[var(--text-dim)] py-8 bg-[var(--surface-2)] border border-dashed border-[var(--border)] rounded-2xl">
+                        No active rows tracked. Use the form tool panel below to register your items.
+                    </p>`;
+                return;
+            }
 
+            container.innerHTML = "";
             AREALIST.forEach(area => {
                 const areaItems = inventoryDataset.filter(item => item.area === area);
                 if (areaItems.length === 0) return;
@@ -458,6 +461,10 @@
         }
 
         async function submitWeeklyStock() {
+            if (inventoryDataset.length === 0) {
+                alert("Checklist is empty. Add items first before making a log entry submit request.");
+                return;
+            }
             rumbleDevice(60);
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
@@ -471,7 +478,7 @@
             };
 
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                alert(`Count locally generated successfully!\n\nTimestamp format check:\n[ ${dataPayload.timestamp} ]`);
+                alert(`Local Offline Test OK!\nTimestamp payload string:\n[ ${dataPayload.timestamp} ]`);
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Submit Weekly Count";
                 return;
@@ -487,14 +494,14 @@
                 alert("✓ Stock records updated in master spreadsheet!");
                 newlyAddedCustomItems = [];
                 fetchActiveSheetsDatabase();
-            } catch (err) { alert("Network storage sync dropped: " + err); }
+            } catch (err) { alert("Storage sync dropped: " + err); }
             finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Submit Weekly Count";
             }
         }
 
-        /* ── PIN Authentication ── */
+        /* ── PIN Auth Terminal Logic ── */
         let inputPin = "";
         const MASTER_PIN_STORE = "3653";
         function pressKey(n) {
@@ -546,7 +553,7 @@
             }
         }
 
-        /* ── Themes & Utility Engines ── */
+        /* ── Theme & Clock Controls ── */
         function synchronizeSystemTheme() {
             const h = new Date().getHours();
             const b = document.getElementById('app-body');
