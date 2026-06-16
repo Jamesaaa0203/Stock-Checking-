@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#F2EEE8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bon Aqua Stock">
+    <title>Bon Aqua — Stock System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#EAEFF5; --bg-soft:#F4F7FB; --surface:#FFFFFF; --surface-2:#F6F9FC;
+            --border:#DCE4EE; --border-2:#C8D4E2; --text:#0B1B33; --text-mut:#5B6B82; --text-dim:#8896A8;
+            --accent:#0D9488; --ok:#0D9488; --attention:#D97706; --alert:#E11D48; --idle:#94A3B8;
+            --shadow:0 1px 2px rgba(13,28,58,.06), 0 8px 24px -12px rgba(13,28,58,.18);
+        }
+        body.dark {
+            --bg:#08101F; --bg-soft:#0A1428; --surface:#0F1B38; --surface-2:#0C1730;
+            --border:#1E2F50; --border-2:#2A3F66; --text:#EAF1FA; --text-mut:#93A3BD; --text-dim:#64748B;
+            --accent:#2DD4BF; --ok:#2DD4BF; --attention:#F59E0B; --alert:#FB7185; --idle:#475569;
+            --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 40px -20px rgba(0,0,0,.7);
+        }
+        body.hc { --text:#04101F; --text-mut:#243349; --text-dim:#3A4D66; --border:#94A6BC; --border-2:#6E8298; --accent:#0A6B61; }
+        body.hc.dark { --text:#FFFFFF; --text-mut:#D4E0F0; --text-dim:#9DB0CC; --border:#3E567E; --border-2:#54709C; --accent:#5EEAD4; }
+        * { -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+        body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; transition:background-color .4s,color .4s; }
+        h1,h2,h3,h4,.num { font-family:'Space Grotesk','Inter',sans-serif; }
+        .eyebrow { font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); }
+        .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); }
+        .wordmark { font-weight:700; letter-spacing:-.02em; font-size:19px; line-height:1; }
+        .wordmark .sub { color:var(--accent); }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; font-weight:600; color:var(--text-mut); }
+        .icon-btn { width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut); transition:color .2s,background .2s; }
+        .icon-btn.on { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,transparent); background:color-mix(in srgb,var(--accent) 12%,transparent); }
+        .dot { width:8px; height:8px; border-radius:999px; flex:none; }
+        .dot.ok { background:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent); animation:breathe 2.4s ease-in-out infinite; }
+        @keyframes breathe { 0%,100%{opacity:1;} 50%{opacity:.45;} }
+        .keypad-btn { background:var(--surface); border:1px solid var(--border-2); border-radius:16px; box-shadow:var(--shadow); font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; color:var(--text); padding:16px 0; transition:transform .1s,background .15s; }
+        .keypad-btn:active { transform:scale(.93); background:var(--surface-2); }
+        
+        /* Stock specific adjustments */
+        .stock-input { background:var(--bg-soft); border:1px solid var(--border-2); color:var(--text); font-family:'Space Grotesk',sans-serif; text-align:center; font-weight:600; }
+        .stock-input:focus { border-color:var(--accent); outline:none; }
+        .data-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .data-table th { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-dim); text-align:right; padding:8px; border-bottom:1px solid var(--border); }
+        .data-table th:first-child, .data-table td:first-child { text-align:left; }
+        .data-table td { padding:10px 8px; border-bottom:1px solid var(--border); color:var(--text); font-weight:500; text-align:right; }
+        .navbar { background:color-mix(in srgb,var(--surface) 88%,transparent); backdrop-filter:saturate(1.4) blur(14px); -webkit-backdrop-filter:saturate(1.4) blur(14px); border-top:1px solid var(--border); padding-bottom:calc(.6rem + env(safe-area-inset-bottom)); }
+        .nav-btn { color:var(--text-dim); transition:color .2s; }
+        .nav-btn.active { color:var(--accent); }
+        .pin-on { background:var(--accent) !important; }
+        .kpi { background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); padding:16px; width:100%; text-align:left; transition:transform .12s; position:relative; overflow:hidden; }
+        .kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--kpi-hue,var(--accent)); opacity:.7; }
+        .kpi-label { font-size:12px; font-weight:600; color:var(--text-mut); }
+        .kpi-val { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:26px; line-height:1; letter-spacing:-.02em; margin-top:8px; }
+        .pill { font-size:10px; font-weight:700; letter-spacing:.04em; padding:3px 8px; border-radius:999px; }
+    </style>
+</head>
+<body id="app-body" class="flex flex-col min-h-screen antialiased">
+
+    <header class="sticky top-0 z-40 px-4 py-3 flex justify-between items-center"
+            style="background:color-mix(in srgb,var(--surface) 90%,transparent); backdrop-filter:saturate(1.4) blur(14px); -webkit-backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid var(--border); padding-top:calc(.75rem + env(safe-area-inset-top));">
+        <div class="flex items-center gap-2.5">
+            <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                <defs><linearGradient id="shell" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#2DD4BF"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#FCD34D"/></linearGradient></defs>
+                <path d="M20 6h-8a4 4 0 00-4 4v12a4 4 0 004 4h8a4 4 0 004-4V10a4 4 0 00-4-4z" stroke="url(#shell)" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M8 12h16M8 18h16" stroke="url(#shell)" stroke-width="1.8" opacity=".7"/>
+            </svg>
+            <div>
+                <div class="wordmark">Bon Aqua <span class="sub">Stock</span></div>
+                <div id="theme-indicator" class="eyebrow" style="margin-top:2px;">Daylight Mode</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="hc-btn" onclick="toggleContrast()" class="icon-btn" title="High-contrast outdoor mode">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+            </button>
+            <div class="chip"><span class="dot ok"></span><span class="num" id="live-clock" style="font-weight:600;color:var(--text);">00:00</span></div>
+        </div>
+    </header>
+
+    <main id="dashboard-view" class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full">
+        <div class="flex items-center justify-between px-1 pt-1">
+            <span class="eyebrow">Weekly Verification · Semakan Mingguan</span>
+            <span class="eyebrow" style="color:var(--text-mut);">Unit Count</span>
+        </div>
+
+        <div id="stock-entry-card" class="card p-4 space-y-4">
+            <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--border);">
+                <div>
+                    <h3 class="font-semibold text-sm">Farm Infrastructure Items</h3>
+                    <p class="text-xs" style="color:var(--text-mut);">Key in values found at storage sites</p>
+                </div>
+                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Week 25</span>
+            </div>
+            
+            <div id="leader-items-container" class="space-y-3.5"></div>
+
+            <button onclick="submitWeeklyStock()" class="w-full mt-2 py-3 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]" style="background:var(--accent); box-shadow: var(--shadow);">
+                Submit Weekly Count
+            </button>
+        </div>
+    </main>
+
+    <main id="manager-auth-view" class="hidden flex-1 p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full pb-28">
+        <div class="w-full text-center space-y-5 max-w-xs">
+            <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path></svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold tracking-tight">Management Terminal</h2>
+                <p class="text-sm" style="color:var(--text-mut);margin-top:2px;">Enter programmatic authorization code</p>
+            </div>
+            <div class="flex justify-center gap-3.5 py-2" id="pin-dots">
+                <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
+                <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
+                <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
+                <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <button onclick="pressKey('1')" class="keypad-btn">1</button><button onclick="pressKey('2')" class="keypad-btn">2</button><button onclick="pressKey('3')" class="keypad-btn">3</button>
+                <button onclick="pressKey('4')" class="keypad-btn">4</button><button onclick="pressKey('5')" class="keypad-btn">5</button><button onclick="pressKey('6')" class="keypad-btn">6</button>
+                <button onclick="pressKey('7')" class="keypad-btn">7</button><button onclick="pressKey('8')" class="keypad-btn">8</button><button onclick="pressKey('9')" class="keypad-btn">9</button>
+                <button onclick="clearPin()" class="keypad-btn" style="font-family:'Inter';font-size:13px;font-weight:600;color:var(--alert);">Clear</button>
+                <button onclick="pressKey('0')" class="keypad-btn">0</button>
+            </div>
+        </div>
+    </main>
+
+    <main id="manager-dashboard-view" class="hidden flex-1 flex flex-col min-h-0 w-full">
+        <div class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full overflow-y-auto">
+            
+            <div class="flex justify-between items-start px-1">
+                <div>
+                    <span class="eyebrow">물류 및 자재 관리 콘솔</span>
+                    <h3 class="text-2xl font-semibold tracking-tight" style="margin-top:2px;">Procurement Review</h3>
+                </div>
+                <button onclick="lockManagerView()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style="background:color-mix(in srgb,var(--alert) 12%,transparent);color:var(--alert);border:1px solid color-mix(in srgb,var(--alert) 26%,transparent);">
+                    Lock Console
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="kpi" style="--kpi-hue:var(--alert);">
+                    <div class="kpi-label">Critically Low Items</div>
+                    <div class="kpi-val text-red-500" id="kpi-critical-count">0</div>
+                </div>
+                <div class="kpi" style="--kpi-hue:var(--attention);">
+                    <div class="kpi-label">Orders Required</div>
+                    <div class="kpi-val text-amber-500" id="kpi-procure-count">0</div>
+                </div>
+            </div>
+
+            <div class="card p-4">
+                <div class="eyebrow mb-2">Master Inventory Ledger</div>
+                <div class="overflow-x-auto">
+                    <table class="data-table" id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Item Descriptor</th>
+                                <th>Min Target</th>
+                                <th>Current Count</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <div class="eyebrow">Auto-Generated Sourcing List</div>
+                    <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Alibaba Ready</span>
+                </div>
+                <div id="procurement-list" class="space-y-2 divide-y divide-[var(--border)]">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-40 px-8 pt-2.5 flex justify-around items-center max-w-md mx-auto w-full">
+        <button onclick="switchTab('ops')" id="nav-ops-btn" class="nav-btn active flex flex-col items-center gap-1 py-1">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <span class="nav-label">Stock Check</span>
+        </button>
+        <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn flex flex-col items-center gap-1 py-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
+            <span class="nav-label">Office Desk</span>
+        </button>
+    </nav>
+
+    <script>
+        const MASTER_PIN = "3653"; // Matches existing authentication token
+        let inputPin = "";
+        let isManagerAuthenticated = false;
+
+        // Mock Inventory DB matching industrial sourcing requirements
+        let inventoryDataset = [
+            { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20 },
+            { id: "item_2", name: "Greenhouse Poly Film UV", current: 5, min_required: 12 },
+            { id: "item_3", name: "Dissolved Oxygen Mesh Caps", current: 45, min_required: 30 },
+            { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 },
+            { id: "item_5", name: "PVC Mainline Valves 50mm", current: 19, min_required: 15 }
+        ];
+
+        /* ── Core Initializers ── */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLeaderInputForm();
+            renderManagerLedger();
+            synchronizeSystemTheme();
+        });
+
+        /* ── UI Core Render Components ── */
+        function renderLeaderInputForm() {
+            const container = document.getElementById('leader-items-container');
+            container.innerHTML = inventoryDataset.map(item => `
+                <div class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+                    <span class="text-xs font-semibold tracking-tight text-[var(--text)] max-w-[240px]">${item.name}</span>
+                    <input type="number" 
+                           id="input_${item.id}" 
+                           value="${item.current}" 
+                           class="stock-input w-16 py-1.5 rounded-lg text-sm"
+                           onchange="updateLocalCacheValue('${item.id}', this.value)">
+                </div>
+            `).join('');
+        }
+
+        function renderManagerLedger() {
+            const tbody = document.getElementById('inventory-table-body');
+            const procList = document.getElementById('procurement-list');
+            
+            let criticalCount = 0;
+            let procureCount = 0;
+            
+            let tbodyHtml = "";
+            let procHtml = "";
+
+            inventoryDataset.forEach(item => {
+                const delta = item.min_required - item.current;
+                let statusBadge = "";
+                
+                if (item.current <= item.min_required * 0.4) {
+                    statusBadge = `<span class="pill bg-rose-500/10 text-[var(--alert)]">Critical</span>`;
+                    criticalCount++;
+                    procureCount++;
+                } else if (item.current < item.min_required) {
+                    statusBadge = `<span class="pill bg-amber-500/10 text-[var(--attention)]">Low Stock</span>`;
+                    procureCount++;
+                } else {
+                    statusBadge = `<span class="pill bg-teal-500/10 text-[var(--ok)]">Stable</span>`;
+                }
+
+                tbodyHtml += `
+                    <tr>
+                        <td class="text-xs font-semibold text-left">${item.name}</td>
+                        <td class="num font-medium">${item.min_required}</td>
+                        <td class="num font-bold ${item.current < item.min_required ? 'text-[var(--alert)]' : ''}">${item.current}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+
+                if (delta > 0) {
+                    procHtml += `
+                        <div class="flex justify-between items-center pt-2 first:pt-0">
+                            <div>
+                                <p class="text-xs font-semibold">${item.name}</p>
+                                <p class="text-[10px]" style="color:var(--text-dim);">Shortfall deficiency metrics: ${delta} units</p>
+                            </div>
+                            <span class="num font-bold text-sm text-[var(--attention)]">+${delta}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No entries found.</td></tr>`;
+            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ All material reserves metrics nominal. No procurement required.</p>`;
+            
+            document.getElementById('kpi-critical-count').textContent = criticalCount;
+            document.getElementById('kpi-procure-count').textContent = procureCount;
+        }
+
+        /* ── Data Management Pipeline ── */
+        function updateLocalCacheValue(id, value) {
+            const targetItem = inventoryDataset.find(i => i.id === id);
+            if (targetItem) {
+                targetItem.current = parseInt(value) || 0;
+            }
+        }
+
+        function submitWeeklyStock() {
+            rumbleDevice(60);
+            // In the future development stage, replace this layout with your Google Apps Script fetch function
+            alert("Weekly database metrics cached locally! Access the 'Office Desk' tab to view generated configurations.");
+            renderManagerLedger();
+        }
+
+        /* ── System Access Authorization Controls (PIN) ── */
+        function pressKey(n) {
+            if (inputPin.length >= 4) return;
+            rumbleDevice(40);
+            inputPin += n;
+            renderPinDots();
+            if (inputPin.length === 4) setTimeout(verifyPin, 150);
+        }
+
+        function clearPin() {
+            rumbleDevice(60);
+            inputPin = "";
+            renderPinDots();
+        }
+
+        function renderPinDots() {
+            const dots = document.getElementById('pin-dots').children;
+            for (let i = 0; i < 4; i++) {
+                const on = i < inputPin.length;
+                dots[i].className = "w-3.5 h-3.5 rounded-full" + (on ? " pin-on" : "");
+                dots[i].style.border = on ? "2px solid var(--accent)" : "2px solid var(--border-2)";
+            }
+        }
+
+        function verifyPin() {
+            if (inputPin === MASTER_PIN) {
+                inputPin = "";
+                renderPinDots();
+                rumbleDevice([80, 50, 80]);
+                isManagerAuthenticated = true;
+                switchTab('mgr');
+            } else {
+                rumbleDevice([300, 100, 300]);
+                inputPin = "";
+                renderPinDots();
+                document.getElementById('pin-dots').animate([
+                    { transform: 'translateX(0)' }, { transform: 'translateX(-8px)' },
+                    { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }
+                ], { duration: 360 });
+            }
+        }
+
+        function lockManagerView() {
+            rumbleDevice(100);
+            isManagerAuthenticated = false;
+            switchTab('ops');
+        }
+
+        /* ── Nav Routing and Display Management ── */
+        function switchTab(target) {
+            rumbleDevice(35);
+            const ops = document.getElementById('dashboard-view');
+            const auth = document.getElementById('manager-auth-view');
+            const mgr = document.getElementById('manager-dashboard-view');
+            const oBtn = document.getElementById('nav-ops-btn');
+            const mBtn = document.getElementById('nav-mgr-btn');
+
+            if (target === 'ops') {
+                ops.classList.remove('hidden');
+                auth.classList.add('hidden');
+                mgr.classList.add('hidden');
+                oBtn.classList.add('active');
+                mBtn.classList.remove('active');
+            } else {
+                ops.classList.add('hidden');
+                oBtn.classList.remove('active');
+                mBtn.classList.add('active');
+                if (isManagerAuthenticated) {
+                    mgr.classList.remove('hidden');
+                    auth.classList.add('hidden');
+                } else {
+                    auth.classList.remove('hidden');
+                    mgr.classList.add('hidden');
+                }
+            }
+        }
+
+        /* ── Utility Engines (Theme, Clock, Haptics) ── */
+        function synchronizeSystemTheme() {
+            const h = new Date().getHours();
+            const b = document.getElementById('app-body');
+            const i = document.getElementById('theme-indicator');
+            if (h >= 6 && h < 18) {
+                b.classList.remove('dark');
+                i.textContent = "Daylight Mode";
+            } else {
+                b.classList.add('dark');
+                i.textContent = "Night Ops Mode";
+            }
+        }
+
+        function toggleContrast() {
+            rumbleDevice(30);
+            const b = document.getElementById('app-body');
+            b.classList.toggle('hc');
+            document.getElementById('hc-btn').classList.toggle('on', b.classList.contains('hc'));
+        }
+
+        function rumbleDevice(d) {
+            if ('vibrate' in navigator) navigator.vibrate(d);
+        }
+
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('live-clock').textContent = d.toTimeString().substring(0, 5);
+            synchronizeSystemTheme();
+        }, 1000);
+    </script>
+</body>
+</html>
