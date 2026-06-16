@@ -4,266 +4,533 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#F4F7FB">
+    <meta name="theme-color" content="#F0F3F7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Farm Stock">
-    <title>Bon Aqua — Farm Stock Check</title>
+    <title>Bon Aqua — Farm Stock</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
+        /* ── TOKENS ─────────────────────────────────────────────── */
         :root {
-            --bg:#EAEFF5; --bg-soft:#F4F7FB; --surface:#FFFFFF; --surface-2:#F6F9FC;
-            --border:#DCE4EE; --border-2:#C8D4E2; --text:#0B1B33; --text-mut:#5B6B82; --text-dim:#8896A8;
-            --accent:#0D9488; --ok:#0D9488; --attention:#D97706; --alert:#E11D48; --idle:#94A3B8;
-            --shadow:0 1px 2px rgba(13,28,58,.06), 0 8px 24px -12px rgba(13,28,58,.18);
+            --bg:       #EEF1F5;
+            --surface:  #FFFFFF;
+            --surface2: #F5F7FA;
+            --border:   #DDE3EC;
+            --border2:  #C8D5E2;
+            --text:     #111827;
+            --mut:      #5C6D80;
+            --dim:      #9CAAB8;
+            --accent:   #0D9488;
+            --ok:       #0D9488;
+            --warn:     #B45309;
+            --danger:   #DC2626;
+            --shadow:   0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.03);
         }
         body.dark {
-            --bg:#08101F; --bg-soft:#0A1428; --surface:#0F1B38; --surface-2:#0C1730;
-            --border:#1E2F50; --border-2:#2A3F66; --text:#EAF1FA; --text-mut:#93A3BD; --text-dim:#64748B;
-            --accent:#2DD4BF; --ok:#2DD4BF; --attention:#F59E0B; --alert:#FB7185; --idle:#475569;
-            --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 40px -20px rgba(0,0,0,.7);
+            --bg:       #090F1D;
+            --surface:  #101C34;
+            --surface2: #0C1628;
+            --border:   #1B2D47;
+            --border2:  #243A5E;
+            --text:     #E2EAF5;
+            --mut:      #8595AE;
+            --dim:      #4C607A;
+            --accent:   #2DD4BF;
+            --ok:       #2DD4BF;
+            --warn:     #F59E0B;
+            --danger:   #F87171;
+            --shadow:   0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
         }
-        body.hc { --text:#04101F; --text-mut:#243349; --text-dim:#3A4D66; --border:#94A6BC; --border-2:#6E8298; --accent:#0A6B61; }
-        body.hc.dark { --text:#FFFFFF; --text-mut:#D4E0F0; --text-dim:#9DB0CC; --border:#3E567E; --border-2:#54709C; --accent:#5EEAD4; }
+        body.hc {
+            --text:#020B17; --mut:#1B3044; --dim:#375268;
+            --border:#7090AE; --border2:#507898; --accent:#0A6B61;
+        }
+        body.hc.dark {
+            --text:#FFFFFF; --mut:#C5D5E8; --dim:#7A9AB8;
+            --border:#2C4668; --border2:#3C5E88; --accent:#5EEAD4;
+        }
 
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; transition: background-color .4s, color .4s; }
-        h1, h2, h3, h4, .num { font-family: 'Space Grotesk', 'Inter', sans-serif; }
+        /* ── RESET & BASE ───────────────────────────────────────── */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 14px; line-height: 1.5;
+            transition: background .35s, color .35s;
+            min-height: 100dvh; display: flex; flex-direction: column;
+        }
+        button { cursor: pointer; font-family: inherit; }
+        input, select { font-family: inherit; }
+        .hidden { display: none !important; }
 
-        .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-dim); }
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); }
-        .wordmark { font-weight: 700; letter-spacing: -.02em; font-size: 19px; line-height: 1; }
-        .wordmark .sub { color: var(--accent); }
-        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-mut); }
-        .icon-btn { width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-mut); transition: color .2s, background .2s; cursor: pointer; }
-        .icon-btn.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
-        .dot { width: 8px; height: 8px; border-radius: 999px; flex: none; }
-        .dot.ok { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); animation: breathe 2.4s ease-in-out infinite; }
-        @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+        /* ── HEADER ─────────────────────────────────────────────── */
+        .hdr {
+            position: sticky; top: 0; z-index: 40;
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hdr-left  { display: flex; align-items: center; gap: 10px; }
+        .hdr-right { display: flex; align-items: center; gap: 8px; }
+        .wordmark  { font-size: 16px; font-weight: 700; letter-spacing: -.025em; line-height: 1; }
+        .wordmark b { color: var(--accent); font-weight: 700; }
+        .eyebrow   { font-size: 10px; font-weight: 600; letter-spacing: .1em;
+                     text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+        .icon-btn  {
+            width: 30px; height: 30px; border-radius: 7px; display: flex;
+            align-items: center; justify-content: center;
+            background: none; border: 1px solid var(--border);
+            color: var(--dim); transition: color .15s, border-color .15s;
+        }
+        .icon-btn.on { color: var(--accent); border-color: var(--accent); }
+        .clock { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+                 color: var(--mut); letter-spacing: .03em; }
 
-        .keypad-btn { background: var(--surface); border: 1px solid var(--border-2); border-radius: 16px; box-shadow: var(--shadow); font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 22px; color: var(--text); padding: 16px 0; transition: transform .1s, background .15s; cursor: pointer; }
-        .keypad-btn:active { transform: scale(.93); background: var(--surface-2); }
-        .pin-on { background: var(--accent) !important; border-color: var(--accent) !important; }
-
-        .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 14px 16px; width: 100%; text-align: left; position: relative; overflow: hidden; }
-        .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--kpi-hue, var(--accent)); opacity: .7; }
-        .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-mut); line-height: 1.3; }
-        .kpi-val { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1; letter-spacing: -.02em; margin-top: 6px; }
-
-        .pill { font-size: 10px; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .data-table th { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); text-align: right; padding: 8px; border-bottom: 1px solid var(--border); }
-        .data-table th:first-child, .data-table td:first-child { text-align: left; }
-        .data-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; text-align: right; }
-
-        .stock-input { background: var(--bg-soft); border: 1px solid var(--border-2); color: var(--text); font-family: 'Space Grotesk', sans-serif; text-align: center; font-weight: 700; border-radius: 10px; }
-        .stock-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
-        .select-custom { background: var(--bg-soft); border: 1px solid var(--border-2); color: var(--text); font-size: 11px; font-weight: 500; outline: none; padding: 8px 10px; border-radius: 10px; }
-        .select-custom:focus { border-color: var(--accent); }
-
-        .navbar { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-top: 1px solid var(--border); padding-bottom: calc(.6rem + env(safe-area-inset-bottom)); }
-        .nav-btn { color: var(--text-dim); transition: color .2s; cursor: pointer; }
+        /* ── BOTTOM NAV ─────────────────────────────────────────── */
+        .nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+            max-width: 448px; margin: 0 auto;
+            background: var(--surface); border-top: 1px solid var(--border);
+            padding: 6px 32px calc(6px + env(safe-area-inset-bottom));
+            display: flex; justify-content: space-around;
+        }
+        .nav-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 4px 16px; background: none; border: none;
+            color: var(--dim); transition: color .15s; font-size: 10px; font-weight: 600;
+            letter-spacing: .04em;
+        }
         .nav-btn.active { color: var(--accent); }
 
-        /* Manager tab pills */
-        .mgr-tab { font-size: 12px; font-weight: 600; padding: 7px 0; border-radius: 999px; transition: all .2s; color: var(--text-dim); flex: 1; text-align: center; cursor: pointer; }
-        .mgr-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent); }
+        /* ── VIEWS ──────────────────────────────────────────────── */
+        .view {
+            flex: 1; padding: 16px; padding-bottom: 84px;
+            max-width: 448px; margin: 0 auto; width: 100%;
+            display: flex; flex-direction: column; gap: 12px;
+        }
 
-        /* Stock level mini-bar */
-        .stock-bar { height: 3px; border-radius: 999px; background: var(--border); overflow: hidden; margin-top: 5px; }
-        .stock-bar-fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+        /* ── OFFLINE BANNER ─────────────────────────────────────── */
+        .offline-banner {
+            padding: 9px 13px; border-radius: 8px; font-size: 12px; font-weight: 500;
+            border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+            background: color-mix(in srgb, var(--warn) 8%, transparent);
+            color: var(--warn); display: flex; gap: 7px; align-items: flex-start;
+        }
 
-        /* Item row state tints */
-        .row-critical { background: color-mix(in srgb, var(--alert) 6%, var(--surface-2)) !important; border-color: color-mix(in srgb, var(--alert) 20%, var(--border)) !important; }
-        .row-low { background: color-mix(in srgb, var(--attention) 6%, var(--surface-2)) !important; border-color: color-mix(in srgb, var(--attention) 20%, var(--border)) !important; }
+        /* ── AREA SECTION (clipboard rows) ──────────────────────── */
+        .area-section {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; overflow: hidden;
+        }
+        .area-hdr {
+            padding: 8px 14px; background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .area-hdr-name {
+            font-size: 10px; font-weight: 700; letter-spacing: .09em;
+            text-transform: uppercase; color: var(--mut);
+        }
+        .area-hdr-count { font-size: 10px; font-weight: 500; color: var(--dim); }
+        .item-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .item-row:last-child { border-bottom: none; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-name  {
+            font-size: 13px; font-weight: 500; color: var(--text);
+            display: flex; align-items: center; gap: 5px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .item-meta  { font-size: 10px; color: var(--dim); margin-top: 2px; }
+        .sdot {
+            width: 5px; height: 5px; border-radius: 999px; flex: none;
+            display: inline-block;
+        }
+        .sdot.w  { background: var(--warn); }
+        .sdot.d  { background: var(--danger); }
+
+        /* ── COUNT INPUT ────────────────────────────────────────── */
+        .cnt {
+            width: 58px; text-align: center; padding: 7px 4px;
+            border: 1px solid var(--border2); border-radius: 7px;
+            font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums;
+            background: var(--surface2); color: var(--text);
+            outline: none; transition: border-color .15s, color .15s; flex: none;
+        }
+        .cnt:focus             { border-color: var(--accent); }
+        .cnt.low               { border-color: var(--warn);   color: var(--warn); }
+        .cnt.critical          { border-color: var(--danger); color: var(--danger); }
+
+        /* ── BUTTONS ────────────────────────────────────────────── */
+        .btn {
+            width: 100%; padding: 11px; border-radius: 8px; border: none;
+            font-size: 13px; font-weight: 600; color: #fff;
+            background: var(--accent); transition: opacity .15s;
+        }
+        .btn:active   { opacity: .82; }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
+        .btn-sm {
+            padding: 5px 10px; border-radius: 6px; font-size: 11px;
+            font-weight: 600; border: none;
+        }
+        .btn-del {
+            background: color-mix(in srgb, var(--danger) 10%, transparent);
+            color: var(--danger);
+            border: 1px solid color-mix(in srgb, var(--danger) 22%, transparent) !important;
+        }
+        .btn-muted {
+            background: var(--surface2); color: var(--mut);
+            border: 1px solid var(--border) !important;
+        }
+
+        /* ── INPUTS ─────────────────────────────────────────────── */
+        .inp, .sel {
+            width: 100%; padding: 8px 11px; border: 1px solid var(--border2);
+            border-radius: 7px; font-size: 12px; background: var(--surface2);
+            color: var(--text); outline: none; transition: border-color .15s;
+        }
+        .inp:focus, .sel:focus { border-color: var(--accent); }
+        .lbl {
+            display: block; font-size: 10px; font-weight: 700; letter-spacing: .07em;
+            text-transform: uppercase; color: var(--dim); margin-bottom: 5px;
+        }
+
+        /* ── DB SETUP ACCORDION ─────────────────────────────────── */
+        .db-accordion {
+            border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+        }
+        .db-accordion summary {
+            padding: 10px 14px; font-size: 11px; font-weight: 600;
+            color: var(--accent); cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--surface);
+        }
+        .db-accordion-body {
+            padding: 12px 14px; border-top: 1px solid var(--border);
+            background: var(--surface2); display: flex; flex-direction: column; gap: 8px;
+        }
+
+        /* ── PIN ────────────────────────────────────────────────── */
+        .pin-wrap {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 16px 16px 84px; gap: 0;
+        }
+        .pin-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); color: var(--accent); margin-bottom: 18px;
+        }
+        .pin-dots { display: flex; gap: 13px; margin: 16px 0 24px; }
+        .pin-dot  {
+            width: 11px; height: 11px; border-radius: 999px;
+            border: 2px solid var(--border2); transition: background .1s, border-color .1s;
+        }
+        .pin-dot.on { background: var(--accent); border-color: var(--accent); }
+        .keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; width: 100%; max-width: 272px; }
+        .key {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 11px; font-size: 20px; font-weight: 600; color: var(--text);
+            padding: 13px 0; transition: background .1s, transform .08s;
+        }
+        .key:active { transform: scale(.93); background: var(--surface2); }
+        .key.clr    { font-size: 12px; color: var(--danger); }
+        .key.empty  { background: none; border: none; pointer-events: none; }
+
+        /* ── MANAGER STATS BAR ──────────────────────────────────── */
+        .stats-bar {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; display: flex; overflow: hidden;
+        }
+        .stat { flex: 1; text-align: center; padding: 13px 8px; }
+        .stat + .stat { border-left: 1px solid var(--border); }
+        .stat-val {
+            display: block; font-size: 22px; font-weight: 700;
+            font-variant-numeric: tabular-nums; letter-spacing: -.025em; color: var(--text);
+        }
+        .stat-val.d { color: var(--danger); }
+        .stat-val.w { color: var(--warn); }
+        .stat-lbl {
+            display: block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .09em; color: var(--dim); margin-top: 3px;
+        }
+
+        /* ── MANAGER TABS ───────────────────────────────────────── */
+        .tab-bar {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px 10px 0 0; display: flex; border-bottom: none;
+        }
+        .tab {
+            flex: 1; padding: 10px 0; font-size: 12px; font-weight: 600;
+            color: var(--dim); background: none; border: none;
+            border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
+        }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-top: none; border-radius: 0 0 10px 10px;
+        }
+
+        /* ── REORDER LIST ───────────────────────────────────────── */
+        .panel-hdr {
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .panel-hdr-title {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .09em; color: var(--mut);
+        }
+        .panel-hdr-sub { font-size: 10px; color: var(--dim); }
+        .reorder-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+        }
+        .reorder-row:last-child { border-bottom: none; }
+        .rr-name { font-size: 13px; font-weight: 500; }
+        .rr-meta { font-size: 10px; color: var(--dim); margin-top: 2px; }
+        .rr-qty  { text-align: right; flex: none; }
+        .rr-num  { display: block; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .rr-num.d { color: var(--danger); }
+        .rr-num.w { color: var(--warn); }
+        .rr-unit { font-size: 10px; color: var(--dim); }
+
+        /* ── INVENTORY TABLE ────────────────────────────────────── */
+        .inv-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .inv-tbl th {
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .07em; color: var(--dim);
+            padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right;
+        }
+        .inv-tbl th:first-child { text-align: left; }
+        .inv-tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: right; }
+        .inv-tbl td:first-child { text-align: left; }
+        .inv-tbl tr:last-child td { border-bottom: none; }
+        .td-name { font-size: 12px; font-weight: 500; }
+        .td-sub  { font-size: 10px; color: var(--dim); margin-top: 1px; }
+        .status-txt { font-size: 11px; font-weight: 600; }
+        .status-txt.d { color: var(--danger); }
+        .status-txt.w { color: var(--warn); }
+        .status-txt.ok { color: var(--dim); font-weight: 400; }
+
+        /* ── SETUP LIST ─────────────────────────────────────────── */
+        .setup-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border);
+        }
+        .setup-row:last-child { border-bottom: none; }
+        .setup-name { font-size: 12px; font-weight: 500; display: block; }
+        .setup-meta { font-size: 10px; color: var(--dim); margin-top: 1px; display: block; }
+
+        /* ── SETUP FORM ─────────────────────────────────────────── */
+        .setup-form {
+            padding: 14px; display: flex; flex-direction: column; gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .setup-mini-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
+
+        /* ── CHIPS / MISC ───────────────────────────────────────── */
+        .chip-sm {
+            display: inline-flex; align-items: center; padding: 3px 8px;
+            border-radius: 999px; font-size: 10px; font-weight: 600;
+            background: var(--surface2); border: 1px solid var(--border); color: var(--mut);
+        }
+        .section-lbl {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .09em; color: var(--dim);
+        }
+        .empty-msg {
+            text-align: center; padding: 24px 16px;
+            font-size: 12px; color: var(--dim);
+        }
+        .mini-accordion {
+            border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+        }
+        .mini-accordion summary {
+            padding: 9px 12px; font-size: 11px; font-weight: 600; color: var(--mut);
+            cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--surface2);
+        }
+        .mini-accordion-body {
+            padding: 10px 12px; border-top: 1px solid var(--border);
+            background: var(--surface); display: flex; flex-direction: column; gap: 7px;
+        }
     </style>
 </head>
-<body id="app-body" class="flex flex-col min-h-screen antialiased">
+<body id="app-body">
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ════════════════════════════════════════
      HEADER
-═══════════════════════════════════════════════════════ -->
-<header class="sticky top-0 z-40 px-4 py-3 flex justify-between items-center"
-        style="background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid var(--border); padding-top: calc(.75rem + env(safe-area-inset-top));">
-    <div class="flex items-center gap-2.5">
-        <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
-            <defs><linearGradient id="shell" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#2DD4BF"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#FCD34D"/></linearGradient></defs>
-            <path d="M20 6h-8a4 4 0 00-4 4v12a4 4 0 004 4h8a4 4 0 004-4V10a4 4 0 00-4-4z" stroke="url(#shell)" stroke-width="2.4" stroke-linecap="round"/>
-            <path d="M8 12h16M8 18h16" stroke="url(#shell)" stroke-width="1.8" opacity=".7"/>
+════════════════════════════════════════ -->
+<header class="hdr">
+    <div class="hdr-left">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+            <defs><linearGradient id="sg" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2DD4BF"/>
+                <stop offset=".5" stop-color="#818CF8"/>
+                <stop offset="1" stop-color="#FCD34D"/>
+            </linearGradient></defs>
+            <path d="M20 6h-8a4 4 0 00-4 4v12a4 4 0 004 4h8a4 4 0 004-4V10a4 4 0 00-4-4z" stroke="url(#sg)" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M8 12h16M8 18h16" stroke="url(#sg)" stroke-width="1.6" opacity=".65"/>
         </svg>
         <div>
-            <div class="wordmark">Bon Aqua <span class="sub">Stock</span></div>
-            <div id="theme-indicator" class="eyebrow" style="margin-top:2px;">Loading...</div>
+            <div class="wordmark">Bon Aqua <b>Stock</b></div>
+            <div id="theme-indicator" class="eyebrow">Loading...</div>
         </div>
     </div>
-    <div class="flex items-center gap-2">
-        <button id="hc-btn" onclick="toggleContrast()" class="icon-btn" title="High-contrast outdoor mode">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+    <div class="hdr-right">
+        <button id="hc-btn" onclick="toggleContrast()" class="icon-btn" title="High-contrast mode">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+            </svg>
         </button>
-        <div class="chip"><span class="dot ok"></span><span class="num" id="live-clock" style="font-weight:600;color:var(--text);">00:00</span></div>
+        <span id="live-clock" class="clock">00:00</span>
     </div>
 </header>
 
 
-<!-- ═══════════════════════════════════════════════════════
-     VIEW 1 — WORKER STOCK COUNT FORM
-═══════════════════════════════════════════════════════ -->
-<main id="worker-view" class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full">
+<!-- ════════════════════════════════════════
+     VIEW 1 · WORKER STOCK COUNT
+════════════════════════════════════════ -->
+<main id="worker-view" class="view">
 
-    <!-- Offline warning -->
-    <div id="offline-banner" class="hidden p-3 rounded-xl flex items-start gap-2 text-xs font-medium"
-         style="background:color-mix(in srgb,var(--attention) 10%,transparent); border:1px solid color-mix(in srgb,var(--attention) 25%,transparent); color:var(--attention);">
-        <span style="flex:none;">⚠️</span>
-        <span>Offline — data stored locally. Connect Google Sheets below to sync counts.</span>
+    <div id="offline-banner" class="hidden offline-banner">
+        <span style="flex:none;">⚠</span>
+        <span>Offline — connect Google Sheets below to sync counts.</span>
     </div>
 
-    <!-- Section label + refresh -->
-    <div class="flex items-start justify-between px-1 pt-1">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
-            <span class="eyebrow">Farm Stock Count · Semakan Stok Ladang</span>
-            <p id="sync-label" class="text-[10px] mt-1" style="color:var(--text-dim);">Initialising...</p>
+            <div class="section-lbl">Stock Count · Semakan Stok</div>
+            <p id="sync-label" style="font-size:11px;color:var(--dim);margin-top:4px;">Loading...</p>
         </div>
-        <button onclick="refreshData()" class="icon-btn" title="Refresh from Sheets">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+        <button onclick="refreshData()" class="icon-btn" title="Refresh">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+            </svg>
         </button>
     </div>
 
-    <!-- Items grouped by area (rendered by JS) -->
-    <div id="items-container" class="space-y-5">
-        <div class="card p-10 text-center">
-            <p class="text-sm" style="color:var(--text-dim);">Loading inventory items...</p>
+    <div id="items-container" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="area-section">
+            <div class="area-hdr"><span class="area-hdr-name">Loading inventory...</span></div>
         </div>
     </div>
 
-    <!-- Database link setup -->
-    <details class="group border border-[var(--border)] rounded-2xl p-3" style="background:color-mix(in srgb,var(--accent) 4%,var(--surface));">
-        <summary class="list-none flex justify-between items-center text-[10px] font-bold cursor-pointer px-1" style="color:var(--accent);">
-            <span>🔗 Google Sheets Connection Setup</span>
-            <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
-        </summary>
-        <div class="space-y-2.5 pt-3 mt-2 border-t border-[var(--border)]">
-            <p class="text-[10px]" style="color:var(--text-mut);">Paste your deployed Apps Script URL (Web App URL):</p>
-            <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec"
-                   class="w-full text-[11px] px-3 py-2 rounded-xl bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-            <button onclick="saveGasUrl()" class="w-full py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95" style="background:var(--accent);">
-                Connect Database
-            </button>
+    <details class="db-accordion">
+        <summary>🔗 Google Sheets Connection <span style="color:var(--dim);">▾</span></summary>
+        <div class="db-accordion-body">
+            <p style="font-size:11px;color:var(--dim);">Paste your Apps Script deployment URL:</p>
+            <input type="text" id="gas-url-input"
+                   placeholder="https://script.google.com/macros/s/.../exec"
+                   class="inp">
+            <button onclick="saveGasUrl()" class="btn" style="padding:9px;font-size:12px;">Connect Database</button>
         </div>
     </details>
 
-    <!-- Submit button -->
-    <button id="submit-btn" onclick="submitStockCount()"
-            class="w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]"
-            style="background:var(--accent); box-shadow:var(--shadow);">
-        ✓ Submit Stock Count
-    </button>
+    <button id="submit-btn" onclick="submitStockCount()" class="btn">Submit Stock Count</button>
 
 </main>
 
 
-<!-- ═══════════════════════════════════════════════════════
-     VIEW 2 — MANAGER PIN AUTH
-═══════════════════════════════════════════════════════ -->
-<main id="auth-view" class="hidden flex-1 p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full pb-28">
-    <div class="w-full text-center space-y-5 max-w-xs">
-        <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center"
-             style="background:color-mix(in srgb,var(--accent) 12%,transparent); border:1px solid color-mix(in srgb,var(--accent) 30%,transparent); color:var(--accent);">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+<!-- ════════════════════════════════════════
+     VIEW 2 · MANAGER PIN AUTH
+════════════════════════════════════════ -->
+<main id="auth-view" class="hidden" style="flex:1;display:flex;flex-direction:column;">
+    <div class="pin-wrap">
+        <div class="pin-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+            </svg>
         </div>
-        <div>
-            <h2 class="text-lg font-semibold tracking-tight">Management Terminal</h2>
-            <p class="text-sm" style="color:var(--text-mut);margin-top:2px;">Enter operational PIN to continue</p>
+        <h2 style="font-size:17px;font-weight:700;letter-spacing:-.02em;">Management Terminal</h2>
+        <p style="font-size:13px;color:var(--mut);margin-top:5px;">Enter PIN to continue</p>
+        <div class="pin-dots" id="pin-dots">
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
         </div>
-        <div class="flex justify-center gap-3.5 py-2" id="pin-dots">
-            <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
-            <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
-            <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
-            <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
-        </div>
-        <div class="grid grid-cols-3 gap-3 pt-2">
-            <button onclick="pressKey('1')" class="keypad-btn">1</button>
-            <button onclick="pressKey('2')" class="keypad-btn">2</button>
-            <button onclick="pressKey('3')" class="keypad-btn">3</button>
-            <button onclick="pressKey('4')" class="keypad-btn">4</button>
-            <button onclick="pressKey('5')" class="keypad-btn">5</button>
-            <button onclick="pressKey('6')" class="keypad-btn">6</button>
-            <button onclick="pressKey('7')" class="keypad-btn">7</button>
-            <button onclick="pressKey('8')" class="keypad-btn">8</button>
-            <button onclick="pressKey('9')" class="keypad-btn">9</button>
-            <button onclick="clearPin()" class="keypad-btn" style="font-family:'Inter';font-size:13px;font-weight:600;color:var(--alert);">Clear</button>
-            <button onclick="pressKey('0')" class="keypad-btn">0</button>
-            <div></div>
+        <div class="keypad">
+            <button onclick="pressKey('1')" class="key">1</button>
+            <button onclick="pressKey('2')" class="key">2</button>
+            <button onclick="pressKey('3')" class="key">3</button>
+            <button onclick="pressKey('4')" class="key">4</button>
+            <button onclick="pressKey('5')" class="key">5</button>
+            <button onclick="pressKey('6')" class="key">6</button>
+            <button onclick="pressKey('7')" class="key">7</button>
+            <button onclick="pressKey('8')" class="key">8</button>
+            <button onclick="pressKey('9')" class="key">9</button>
+            <button onclick="clearPin()" class="key clr">Clear</button>
+            <button onclick="pressKey('0')" class="key">0</button>
+            <div class="key empty"></div>
         </div>
     </div>
 </main>
 
 
-<!-- ═══════════════════════════════════════════════════════
-     VIEW 3 — MANAGER DASHBOARD
-═══════════════════════════════════════════════════════ -->
-<main id="manager-view" class="hidden flex-1 flex flex-col min-h-0 w-full">
-<div class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full overflow-y-auto">
+<!-- ════════════════════════════════════════
+     VIEW 3 · MANAGER DASHBOARD
+════════════════════════════════════════ -->
+<main id="manager-view" class="hidden" style="flex:1;display:flex;flex-direction:column;">
+<div class="view">
 
-    <!-- Header -->
-    <div class="flex justify-between items-start px-1">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
         <div>
-            <span class="eyebrow">재고 관리 · Stock Management</span>
-            <h3 class="text-2xl font-semibold tracking-tight" style="margin-top:2px;">Executive Terminal</h3>
+            <div class="section-lbl">Manager Terminal · 관리자</div>
+            <h2 style="font-size:19px;font-weight:700;letter-spacing:-.025em;margin-top:4px;">Stock Overview</h2>
         </div>
-        <button onclick="lockManager()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold"
-                style="background:color-mix(in srgb,var(--alert) 10%,transparent); color:var(--alert); border:1px solid color-mix(in srgb,var(--alert) 24%,transparent);">
-            🔒 Lock
-        </button>
+        <button onclick="lockManager()" class="btn-sm btn-del" style="padding:6px 12px;">Lock</button>
     </div>
 
-    <!-- KPI Row -->
-    <div class="grid grid-cols-3 gap-2.5">
-        <div class="kpi" style="--kpi-hue:var(--alert);">
-            <div class="kpi-label">Critical</div>
-            <div class="kpi-val" id="kpi-critical" style="color:var(--alert);">0</div>
+    <!-- Stats -->
+    <div class="stats-bar">
+        <div class="stat">
+            <span class="stat-val d" id="kpi-critical">0</span>
+            <span class="stat-lbl">Critical</span>
         </div>
-        <div class="kpi" style="--kpi-hue:var(--attention);">
-            <div class="kpi-label">Low Stock</div>
-            <div class="kpi-val" id="kpi-low" style="color:var(--attention);">0</div>
+        <div class="stat">
+            <span class="stat-val w" id="kpi-low">0</span>
+            <span class="stat-lbl">Low Stock</span>
         </div>
-        <div class="kpi" style="--kpi-hue:var(--accent);">
-            <div class="kpi-label">Total Items</div>
-            <div class="kpi-val" id="kpi-total" style="color:var(--accent);">0</div>
+        <div class="stat">
+            <span class="stat-val" id="kpi-total">0</span>
+            <span class="stat-lbl">Total Items</span>
         </div>
     </div>
 
-    <!-- Internal tab switcher -->
-    <div class="flex gap-1.5 p-1.5 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]">
-        <button id="tab-btn-overview" onclick="switchMgrTab('overview')" class="mgr-tab active">📊 Overview</button>
-        <button id="tab-btn-setup" onclick="switchMgrTab('setup')" class="mgr-tab">⚙️ Item Setup</button>
-    </div>
+    <!-- Tabs -->
+    <div>
+        <div class="tab-bar">
+            <button id="tab-btn-overview" onclick="switchMgrTab('overview')" class="tab active">Overview</button>
+            <button id="tab-btn-setup"    onclick="switchMgrTab('setup')"    class="tab">Item Setup</button>
+        </div>
 
+        <!-- OVERVIEW ────────────────────────── -->
+        <div id="tab-overview" class="tab-panel">
 
-    <!-- ── TAB: OVERVIEW ──────────────────────────────── -->
-    <div id="tab-overview" class="space-y-4">
-
-        <!-- Purchase Order list -->
-        <div class="card p-4 space-y-3">
-            <div class="flex justify-between items-center">
-                <div>
-                    <div class="eyebrow">Purchase Order List · Senarai Pembelian</div>
-                    <p class="text-[10px] mt-0.5" style="color:var(--text-dim);">Items below minimum threshold — auto-generated</p>
-                </div>
-                <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Procurement</span>
+            <div class="panel-hdr">
+                <span class="panel-hdr-title">Purchase Order List</span>
+                <span class="panel-hdr-sub">Auto-generated</span>
             </div>
-            <div id="reorder-list" class="divide-y divide-[var(--border)]">
-                <p class="text-xs text-center py-5 font-medium" style="color:var(--ok);">✓ All items at or above minimum stock.</p>
+            <div id="reorder-list">
+                <p class="empty-msg" style="color:var(--ok);font-weight:500;">✓ All items at minimum stock.</p>
             </div>
-        </div>
 
-        <!-- Full inventory table -->
-        <div class="card p-4">
-            <div class="eyebrow mb-3">Full Inventory Ledger · Rekod Stok Penuh</div>
-            <div class="overflow-x-auto -mx-1">
-                <table class="data-table">
+            <div class="panel-hdr" style="margin-top:4px;border-top:1px solid var(--border);">
+                <span class="panel-hdr-title">Full Inventory</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="inv-tbl">
                     <thead>
                         <tr>
                             <th>Item</th>
@@ -273,136 +540,115 @@
                         </tr>
                     </thead>
                     <tbody id="inventory-tbody">
-                        <tr><td colspan="4" class="text-center text-xs py-5" style="color:var(--text-dim);">No items configured.</td></tr>
+                        <tr><td colspan="4" class="empty-msg">No items loaded.</td></tr>
                     </tbody>
                 </table>
             </div>
-        </div>
 
-    </div><!-- /tab-overview -->
+        </div><!-- /overview -->
 
+        <!-- SETUP ───────────────────────────── -->
+        <div id="tab-setup" class="tab-panel hidden">
 
-    <!-- ── TAB: ITEM SETUP ────────────────────────────── -->
-    <div id="tab-setup" class="hidden space-y-4">
+            <div class="setup-form">
+                <div class="section-lbl">Add New Item</div>
 
-        <!-- Add new item -->
-        <div class="card p-4 space-y-3">
-            <div class="eyebrow font-bold" style="color:var(--accent);">+ Add New Item</div>
+                <input type="text" id="new-item-name"
+                       placeholder="Item name (e.g. Sea Pellet Feed 3mm)"
+                       class="inp">
 
-            <input type="text" id="new-item-name"
-                   placeholder="Item name (e.g., Sea Pellet Feed 3mm, Lime 25kg bag)"
-                   class="w-full text-sm px-3 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[10px] font-bold mb-1.5" style="color:var(--text-mut);">Target Area</label>
-                    <select id="new-item-area" class="select-custom w-full"></select>
+                <div class="setup-mini-grid">
+                    <div>
+                        <label class="lbl">Area</label>
+                        <select id="new-item-area" class="sel"></select>
+                    </div>
+                    <div>
+                        <label class="lbl">Category</label>
+                        <select id="new-item-cat" class="sel"></select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold mb-1.5" style="color:var(--text-mut);">Category</label>
-                    <select id="new-item-cat" class="select-custom w-full"></select>
+
+                <div class="setup-mini-grid">
+                    <div>
+                        <label class="lbl">Unit Type</label>
+                        <input type="text" id="new-item-unit"
+                               placeholder="Bags, Bottles…" class="inp">
+                    </div>
+                    <div>
+                        <label class="lbl">Min Required</label>
+                        <input type="number" id="new-item-min" value="5" min="1" class="inp">
+                    </div>
                 </div>
+
+                <button onclick="addItem()" class="btn" style="font-size:12px;padding:10px;">+ Add to Inventory</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[10px] font-bold mb-1.5" style="color:var(--text-mut);">Unit Label</label>
-                    <input type="text" id="new-item-unit" placeholder="e.g. Bags, Bottles, Rolls"
-                           class="w-full text-xs px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold mb-1.5" style="color:var(--text-mut);">Min. Stock Required</label>
-                    <input type="number" id="new-item-min" value="5" min="1"
-                           class="w-full text-xs px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <details class="mini-accordion">
+                    <summary>New Area <span>▾</span></summary>
+                    <div class="mini-accordion-body">
+                        <input type="text" id="new-area-input" placeholder="Area name…" class="inp">
+                        <button onclick="addArea()" class="btn-sm btn-muted" style="width:100%;padding:7px;">Save</button>
+                    </div>
+                </details>
+                <details class="mini-accordion">
+                    <summary>New Category <span>▾</span></summary>
+                    <div class="mini-accordion-body">
+                        <input type="text" id="new-cat-input" placeholder="Category name…" class="inp">
+                        <button onclick="addCategory()" class="btn-sm btn-muted" style="width:100%;padding:7px;">Save</button>
+                    </div>
+                </details>
             </div>
 
-            <button onclick="addItem()"
-                    class="w-full py-2.5 rounded-xl text-xs font-bold text-white transition-transform active:scale-95"
-                    style="background:var(--accent);">
-                + Add to Inventory Master
-            </button>
-        </div>
-
-        <!-- Area & Category management -->
-        <div class="grid grid-cols-2 gap-2">
-            <details class="group border border-[var(--border)] rounded-2xl p-3 bg-[var(--bg-soft)]">
-                <summary class="list-none flex justify-between items-center text-[10px] font-bold cursor-pointer" style="color:var(--text-mut);">
-                    <span>🌊 New Area</span>
-                    <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
-                </summary>
-                <div class="space-y-2 pt-2 mt-2 border-t border-[var(--border)]">
-                    <input type="text" id="new-area-input" placeholder="Area name..."
-                           class="w-full text-xs px-2 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                    <button onclick="addArea()" class="w-full py-1.5 rounded-lg text-[10px] font-bold text-white" style="background:var(--idle);">Save</button>
-                </div>
-            </details>
-            <details class="group border border-[var(--border)] rounded-2xl p-3 bg-[var(--bg-soft)]">
-                <summary class="list-none flex justify-between items-center text-[10px] font-bold cursor-pointer" style="color:var(--text-mut);">
-                    <span>🛠️ New Category</span>
-                    <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
-                </summary>
-                <div class="space-y-2 pt-2 mt-2 border-t border-[var(--border)]">
-                    <input type="text" id="new-cat-input" placeholder="Category name..."
-                           class="w-full text-xs px-2 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                    <button onclick="addCategory()" class="w-full py-1.5 rounded-lg text-[10px] font-bold text-white" style="background:var(--idle);">Save</button>
-                </div>
-            </details>
-        </div>
-
-        <!-- Registered items list (delete) -->
-        <div class="card p-4 space-y-3">
-            <div class="flex justify-between items-center">
-                <div class="eyebrow">Registered Items · Item Berdaftar</div>
-                <span id="setup-count" class="chip">0 items</span>
+            <div style="padding:10px 14px 6px;display:flex;justify-content:space-between;align-items:center;">
+                <span class="section-lbl">Registered Items</span>
+                <span id="setup-count" class="chip-sm">0 items</span>
             </div>
-            <div id="items-setup-list" class="space-y-2">
-                <p class="text-xs text-center py-4" style="color:var(--text-dim);">No items registered yet.</p>
+            <div id="items-setup-list">
+                <p class="empty-msg">No items registered yet.</p>
             </div>
-        </div>
 
-    </div><!-- /tab-setup -->
+        </div><!-- /setup -->
+    </div>
 
 </div>
 </main>
 
 
-<!-- ═══════════════════════════════════════════════════════
-     BOTTOM NAVIGATION
-═══════════════════════════════════════════════════════ -->
-<nav class="navbar fixed bottom-0 left-0 right-0 z-40 px-8 pt-2.5 flex justify-around items-center max-w-md mx-auto w-full">
-    <button onclick="switchTab('worker')" id="nav-worker-btn" class="nav-btn active flex flex-col items-center gap-1 py-1">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-        <span class="text-[10px] font-semibold">Count</span>
+<!-- ════════════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════════ -->
+<nav class="nav">
+    <button onclick="switchTab('worker')" id="nav-worker-btn" class="nav-btn active">
+        <svg width="17" height="17" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+        </svg>
+        Count
     </button>
-    <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn flex flex-col items-center gap-1 py-1">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.954 11.954 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"/></svg>
-        <span class="text-[10px] font-semibold">Manager</span>
+    <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.954 11.954 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"/>
+        </svg>
+        Manager
     </button>
 </nav>
 
 
-<!-- ═══════════════════════════════════════════════════════
-     SYSTEM ENGINE
-═══════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     ENGINE
+════════════════════════════════════════ -->
 <script>
 
-/* ─────────────────────────────────────────────────────────
-   STATE
-───────────────────────────────────────────────────────── */
-const APP_PIN        = "3653";
-let GAS_URL          = "";
-let isAuthenticated  = false;
-let activeMgrTab     = "overview";
+/* ── STATE ── */
+const APP_PIN       = "3653";
+let GAS_URL         = "";
+let isAuthenticated = false;
+let activeMgrTab    = "overview";
+let items      = [];
+let areas      = ["Sea Cage Area","Farm Maintenance Area","Spawning & Spat Area","Staff Welfare Area","Processing Area","Office Area"];
+let categories = ["Beverages & Foods","Cleaning & Hygiene","Electrical & Utilities","Tools & Maintenance","Equipment & Machinery","Office Supplies","Processing Supplies","First Aid Supplies"];
 
-let items      = [];   // { id, name, area, category, unit, min_required, current_count }
-let areas      = ["Sea Cage Area", "Farm Maintenance Area", "Spawning & Spat Area", "Staff Welfare Area", "Processing Area", "Office Area"];
-let categories = ["Beverages & Foods", "Cleaning & Hygiene", "Electrical & Utilities", "Tools & Maintenance", "Equipment & Machinery", "Office Supplies", "Processing Supplies", "First Aid Supplies"];
-
-
-/* ─────────────────────────────────────────────────────────
-   INIT
-───────────────────────────────────────────────────────── */
+/* ── INIT ── */
 window.addEventListener("DOMContentLoaded", () => {
     loadLocalState();
     updateSelectors();
@@ -416,13 +662,9 @@ function loadLocalState() {
     GAS_URL = localStorage.getItem("bon_stock_gas_url") || "";
     document.getElementById("gas-url-input").value = GAS_URL;
     document.getElementById("offline-banner").classList.toggle("hidden", !!GAS_URL);
-
-    const ci = localStorage.getItem("bon_stock_items");
-    const ca = localStorage.getItem("bon_stock_areas");
-    const cc = localStorage.getItem("bon_stock_cats");
-    if (ci) try { items      = JSON.parse(ci); } catch(e) {}
-    if (ca) try { areas      = JSON.parse(ca); } catch(e) {}
-    if (cc) try { categories = JSON.parse(cc); } catch(e) {}
+    try { const c = localStorage.getItem("bon_stock_items");      if (c) items      = JSON.parse(c); } catch(e) {}
+    try { const c = localStorage.getItem("bon_stock_areas");      if (c) areas      = JSON.parse(c); } catch(e) {}
+    try { const c = localStorage.getItem("bon_stock_cats");       if (c) categories = JSON.parse(c); } catch(e) {}
 }
 
 function saveLocalState() {
@@ -433,142 +675,85 @@ function saveLocalState() {
 
 function saveGasUrl() {
     const url = document.getElementById("gas-url-input").value.trim();
-    if (!url) {
-        localStorage.removeItem("bon_stock_gas_url");
-        alert("Database URL cleared.");
-        location.reload();
-        return;
-    }
+    if (!url) { localStorage.removeItem("bon_stock_gas_url"); alert("URL cleared."); location.reload(); return; }
     localStorage.setItem("bon_stock_gas_url", url);
-    alert("🚀 Database link saved. Reconnecting...");
+    alert("Database link saved. Reconnecting...");
     location.reload();
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   DATA — FETCH FROM SHEETS (JSONP)
-───────────────────────────────────────────────────────── */
+/* ── FETCH ── */
 window.handleSheetsData = function(res) {
-    if (res.status !== "success") {
-        setSyncLabel("Sync error: " + (res.message || "unknown"));
-        return;
-    }
-    if (res.items      && res.items.length > 0)      items      = res.items;
-    if (res.areas      && res.areas.length > 0)      areas      = res.areas;
-    if (res.categories && res.categories.length > 0) categories = res.categories;
-
-    saveLocalState();
-    updateSelectors();
-    renderWorkerForm();
-    renderManagerView();
-
-    const now = new Date();
-    setSyncLabel(`Synced at ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    if (res.status !== "success") { setSyncLabel("Sync error: " + (res.message || "unknown")); return; }
+    if (res.items      && res.items.length)      items      = res.items;
+    if (res.areas      && res.areas.length)      areas      = res.areas;
+    if (res.categories && res.categories.length) categories = res.categories;
+    saveLocalState(); updateSelectors(); renderWorkerForm(); renderManagerView();
+    const n = new Date();
+    setSyncLabel("Synced at " + pad(n.getHours()) + ":" + pad(n.getMinutes()));
 };
 
 function fetchFromSheets() {
-    setSyncLabel(items.length ? "Fetching latest data..." : "Loading from Sheets...");
-    if (!GAS_URL) {
-        setSyncLabel(items.length ? `${items.length} items loaded (offline)` : "No database connected");
-        return;
-    }
+    setSyncLabel(items.length ? "Fetching latest..." : "Loading from Sheets...");
+    if (!GAS_URL) { setSyncLabel(items.length ? items.length + " items (offline)" : "No database connected"); return; }
     const s   = document.createElement("script");
-    s.src     = `${GAS_URL}?action=getItems&pin=${APP_PIN}&callback=handleSheetsData`;
+    s.src     = GAS_URL + "?action=getItems&pin=" + APP_PIN + "&callback=handleSheetsData";
     s.onerror = () => setSyncLabel("Sync failed — using cached data");
     document.body.appendChild(s);
 }
 
-function refreshData() {
-    rumble(40);
-    setSyncLabel("Refreshing...");
-    fetchFromSheets();
-}
+function refreshData() { rumble(40); setSyncLabel("Refreshing..."); fetchFromSheets(); }
+function setSyncLabel(t) { document.getElementById("sync-label").textContent = t; }
 
-function setSyncLabel(text) {
-    document.getElementById("sync-label").textContent = text;
-}
-
-
-/* ─────────────────────────────────────────────────────────
-   RENDER — WORKER COUNT FORM
-───────────────────────────────────────────────────────── */
+/* ── RENDER: WORKER FORM ── */
 function renderWorkerForm() {
     const container = document.getElementById("items-container");
 
     if (items.length === 0) {
-        container.innerHTML = `
-            <div class="card p-10 text-center space-y-2">
-                <p class="text-sm font-semibold" style="color:var(--text-mut);">No items configured.</p>
-                <p class="text-xs" style="color:var(--text-dim);">Manager can add items in the <span style="color:var(--accent);">Item Setup</span> tab.</p>
-            </div>`;
+        container.innerHTML = '<div class="area-section"><div class="area-hdr"><span class="area-hdr-name">No items configured</span></div><p class="empty-msg">Manager can add items in the Item Setup tab.</p></div>';
         return;
     }
 
     let html = "";
-    let renderedAny = false;
+    let any  = false;
 
     areas.forEach(area => {
         const areaItems = items.filter(i => i.area === area);
-        if (areaItems.length === 0) return;
-        renderedAny = true;
+        if (!areaItems.length) return;
+        any = true;
 
-        html += `
-            <div class="space-y-2">
-                <div class="flex items-center gap-2 px-1">
-                    <span class="eyebrow font-bold" style="color:var(--accent);">${area}</span>
-                    <div style="flex:1;height:1px;background:var(--border);"></div>
-                    <span class="eyebrow">${areaItems.length} item${areaItems.length > 1 ? 's' : ''}</span>
-                </div>
-                <div class="space-y-2">`;
+        html += '<div class="area-section">';
+        html += '<div class="area-hdr"><span class="area-hdr-name">' + area + '</span><span class="area-hdr-count">' + areaItems.length + '</span></div>';
 
         areaItems.forEach(item => {
             const ratio      = item.min_required > 0 ? item.current_count / item.min_required : 1;
             const isCritical = ratio <= 0.4;
             const isLow      = ratio < 1 && !isCritical;
-            const barWidth   = Math.min(100, Math.round(ratio * 100));
-            const barColor   = isCritical ? "var(--alert)" : isLow ? "var(--attention)" : "var(--ok)";
-            const rowClass   = isCritical ? "row-critical" : isLow ? "row-low" : "";
-            const warnIcon   = isCritical ? "🔴 " : isLow ? "🟡 " : "";
+            const cntClass   = "cnt" + (isCritical ? " critical" : isLow ? " low" : "");
+            const dot        = isCritical ? '<span class="sdot d"></span>' : isLow ? '<span class="sdot w"></span>' : '';
 
-            html += `
-                <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] ${rowClass}">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-semibold">${warnIcon}${item.name}</p>
-                        <p class="text-[9px] mt-0.5" style="color:var(--text-dim);">${item.category} · ${item.unit || 'units'} · Min: ${item.min_required}</p>
-                        <div class="stock-bar">
-                            <div class="stock-bar-fill" style="width:${barWidth}%;background:${barColor};"></div>
-                        </div>
-                    </div>
-                    <input type="number" id="inp_${item.id}" value="${item.current_count}" min="0"
-                           class="stock-input w-16 py-2 text-sm"
-                           onchange="localUpdate('${item.id}', this.value)">
-                </div>`;
+            html += '<div class="item-row">';
+            html +=   '<div class="item-info">';
+            html +=     '<span class="item-name">' + dot + item.name + '</span>';
+            html +=     '<span class="item-meta">' + item.category + ' · ' + (item.unit || 'units') + ' · Min ' + item.min_required + '</span>';
+            html +=   '</div>';
+            html +=   '<input type="number" id="inp_' + item.id + '" value="' + item.current_count + '" min="0" class="' + cntClass + '" onchange="localUpdate(\'' + item.id + '\', this.value)">';
+            html += '</div>';
         });
 
-        html += `</div></div>`;
+        html += '</div>';
     });
 
-    // Items with no matching area (orphans)
     const orphans = items.filter(i => !areas.includes(i.area));
-    if (orphans.length > 0) {
-        html += `<div class="space-y-2"><div class="flex items-center gap-2 px-1"><span class="eyebrow font-bold" style="color:var(--text-dim);">Other</span><div style="flex:1;height:1px;background:var(--border);"></div></div><div class="space-y-2">`;
+    if (orphans.length) {
+        any = true;
+        html += '<div class="area-section"><div class="area-hdr"><span class="area-hdr-name">Other</span><span class="area-hdr-count">' + orphans.length + '</span></div>';
         orphans.forEach(item => {
-            html += `
-                <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs font-semibold">${item.name}</p>
-                        <p class="text-[9px]" style="color:var(--text-dim);">${item.area} · ${item.unit || 'units'} · Min: ${item.min_required}</p>
-                    </div>
-                    <input type="number" id="inp_${item.id}" value="${item.current_count}" min="0"
-                           class="stock-input w-16 py-2 text-sm"
-                           onchange="localUpdate('${item.id}', this.value)">
-                </div>`;
+            html += '<div class="item-row"><div class="item-info"><span class="item-name">' + item.name + '</span><span class="item-meta">' + item.area + ' · ' + (item.unit || 'units') + ' · Min ' + item.min_required + '</span></div><input type="number" id="inp_' + item.id + '" value="' + item.current_count + '" min="0" class="cnt" onchange="localUpdate(\'' + item.id + '\', this.value)"></div>';
         });
-        html += `</div></div>`;
-        renderedAny = true;
+        html += '</div>';
     }
 
-    container.innerHTML = renderedAny ? html : `<div class="card p-8 text-center"><p class="text-sm" style="color:var(--text-dim);">No items match configured areas.</p></div>`;
+    container.innerHTML = any ? html : '<div class="area-section"><p class="empty-msg">No items match configured areas.</p></div>';
 }
 
 function localUpdate(id, val) {
@@ -579,56 +764,29 @@ function localUpdate(id, val) {
     renderManagerView();
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   SUBMIT STOCK COUNT → GAS POST
-───────────────────────────────────────────────────────── */
+/* ── SUBMIT ── */
 async function submitStockCount() {
-    if (items.length === 0) { alert("No items to submit."); return; }
+    if (!items.length) { alert("No items to submit."); return; }
     rumble(60);
-
-    const btn     = document.getElementById("submit-btn");
-    btn.disabled  = true;
-    btn.textContent = "Submitting...";
-
-    const payload = {
-        pin:       APP_PIN,
-        action:    "submitCount",
-        timestamp: getTimestamp(),
-        items:     items.map(i => ({ id: i.id, current_count: i.current_count }))
-    };
+    const btn = document.getElementById("submit-btn");
+    btn.disabled = true; btn.textContent = "Submitting...";
+    const payload = { pin: APP_PIN, action: "submitCount", timestamp: getTimestamp(), items: items.map(i => ({ id: i.id, current_count: i.current_count })) };
 
     if (!GAS_URL) {
-        saveLocalState();
-        renderManagerView();
-        alert("⚠️ Count saved locally (offline). Connect Sheets to sync to the master log.");
-        btn.disabled = false;
-        btn.textContent = "✓ Submit Stock Count";
-        return;
+        saveLocalState(); renderManagerView();
+        alert("Count saved locally (offline). Connect Sheets to sync to master log.");
+        btn.disabled = false; btn.textContent = "Submit Stock Count"; return;
     }
-
     try {
-        await fetch(GAS_URL, {
-            method:  "POST",
-            mode:    "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify(payload)
-        });
+        await fetch(GAS_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         rumble([40, 30, 80]);
-        alert("✓ Stock count submitted to Google Sheets master log!");
+        alert("Stock count submitted to Google Sheets.");
         saveLocalState();
-    } catch(e) {
-        alert("Submission error: " + e.message);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "✓ Submit Stock Count";
-    }
+    } catch(e) { alert("Error: " + e.message); }
+    finally { btn.disabled = false; btn.textContent = "Submit Stock Count"; }
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   RENDER — MANAGER DASHBOARD
-───────────────────────────────────────────────────────── */
+/* ── RENDER: MANAGER VIEW ── */
 function renderManagerView() {
     let critical = 0, low = 0;
     let reorderHtml = "", tableHtml = "", setupHtml = "";
@@ -639,243 +797,137 @@ function renderManagerView() {
         const isLow      = ratio < 1 && !isCritical;
         const needed     = item.min_required - item.current_count;
 
-        // Badge
-        let badge = "";
-        if (isCritical) { badge = `<span class="pill" style="background:color-mix(in srgb,var(--alert) 12%,transparent);color:var(--alert);">Critical</span>`; critical++; }
-        else if (isLow) { badge = `<span class="pill" style="background:color-mix(in srgb,var(--attention) 12%,transparent);color:var(--attention);">Low</span>`; low++; }
-        else            { badge = `<span class="pill" style="background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);">OK</span>`; }
+        if (isCritical) critical++;
+        else if (isLow) low++;
 
-        // Inventory table row
-        tableHtml += `
-            <tr>
-                <td>
-                    <div class="text-xs font-semibold">${item.name}</div>
-                    <div class="text-[9px]" style="color:var(--text-dim);">${item.area} · ${item.category}</div>
-                </td>
-                <td class="num text-xs font-medium">${item.min_required}</td>
-                <td class="num font-bold ${isCritical ? 'text-[var(--alert)]' : isLow ? 'text-[var(--attention)]' : ''}">${item.current_count}</td>
-                <td>${badge}</td>
-            </tr>`;
+        // Table row
+        const statusTxt = isCritical
+            ? '<span class="status-txt d">Critical</span>'
+            : isLow
+            ? '<span class="status-txt w">Low</span>'
+            : '<span class="status-txt ok">—</span>';
+        const cntColor = isCritical ? 'color:var(--danger);' : isLow ? 'color:var(--warn);' : '';
 
-        // Reorder entry (only if below min)
+        tableHtml +=
+            '<tr>' +
+            '<td><div class="td-name">' + item.name + '</div><div class="td-sub">' + item.area + ' · ' + item.category + '</div></td>' +
+            '<td style="font-size:12px;">' + item.min_required + '</td>' +
+            '<td style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;' + cntColor + '">' + item.current_count + '</td>' +
+            '<td>' + statusTxt + '</td>' +
+            '</tr>';
+
+        // Reorder row
         if (needed > 0) {
-            const urgency = isCritical ? "var(--alert)" : "var(--attention)";
-            reorderHtml += `
-                <div class="flex justify-between items-center py-2.5 first:pt-0">
-                    <div class="flex-1 min-w-0 pr-3">
-                        <p class="text-xs font-semibold">${item.name}</p>
-                        <p class="text-[10px] mt-0.5" style="color:var(--text-dim);">${item.area} · ${item.category}</p>
-                    </div>
-                    <div class="text-right flex-none">
-                        <div class="num font-bold text-base" style="color:${urgency};">+${needed}</div>
-                        <div class="text-[9px]" style="color:var(--text-dim);">${item.unit || 'units'} needed</div>
-                    </div>
-                </div>`;
+            const cls = isCritical ? 'd' : 'w';
+            reorderHtml +=
+                '<div class="reorder-row">' +
+                '<div><div class="rr-name">' + item.name + '</div><div class="rr-meta">' + item.area + ' · ' + item.category + '</div></div>' +
+                '<div class="rr-qty"><span class="rr-num ' + cls + '">+' + needed + '</span><span class="rr-unit">' + (item.unit || 'units') + ' needed</span></div>' +
+                '</div>';
         }
 
-        // Setup list row
-        setupHtml += `
-            <div class="flex items-center gap-2 p-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold truncate">${item.name}</p>
-                    <p class="text-[9px] mt-0.5" style="color:var(--text-dim);">${item.area} · ${item.category} · Min: ${item.min_required} ${item.unit || ''}</p>
-                </div>
-                <button onclick="deleteItem('${item.id}')"
-                        class="flex-none px-2.5 py-1 rounded-lg text-[10px] font-bold"
-                        style="background:color-mix(in srgb,var(--alert) 10%,transparent);color:var(--alert);border:1px solid color-mix(in srgb,var(--alert) 20%,transparent);">
-                    Delete
-                </button>
-            </div>`;
+        // Setup row
+        setupHtml +=
+            '<div class="setup-row">' +
+            '<div><span class="setup-name">' + item.name + '</span><span class="setup-meta">' + item.area + ' · ' + item.category + ' · Min ' + item.min_required + ' ' + (item.unit || '') + '</span></div>' +
+            '<button onclick="deleteItem(\'' + item.id + '\')" class="btn-sm btn-del">Delete</button>' +
+            '</div>';
     });
 
-    // KPIs
     document.getElementById("kpi-critical").textContent = critical;
     document.getElementById("kpi-low").textContent      = low;
     document.getElementById("kpi-total").textContent    = items.length;
 
-    // Reorder list
-    document.getElementById("reorder-list").innerHTML = reorderHtml
-        || `<p class="text-xs text-center py-5 font-medium" style="color:var(--ok);">✓ All items at or above minimum stock.</p>`;
-
-    // Inventory table
-    document.getElementById("inventory-tbody").innerHTML = tableHtml
-        || `<tr><td colspan="4" class="text-center text-xs py-5" style="color:var(--text-dim);">No items configured.</td></tr>`;
-
-    // Setup list
-    document.getElementById("items-setup-list").innerHTML = setupHtml
-        || `<p class="text-xs text-center py-4" style="color:var(--text-dim);">No items registered yet. Add one above.</p>`;
-    document.getElementById("setup-count").textContent = `${items.length} item${items.length !== 1 ? 's' : ''}`;
+    document.getElementById("reorder-list").innerHTML   = reorderHtml || '<p class="empty-msg" style="color:var(--ok);font-weight:500;">✓ All items at minimum stock.</p>';
+    document.getElementById("inventory-tbody").innerHTML = tableHtml  || '<tr><td colspan="4" class="empty-msg">No items configured.</td></tr>';
+    document.getElementById("items-setup-list").innerHTML = setupHtml || '<p class="empty-msg">No items registered yet.</p>';
+    document.getElementById("setup-count").textContent  = items.length + " item" + (items.length !== 1 ? "s" : "");
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   ITEM MANAGEMENT
-───────────────────────────────────────────────────────── */
+/* ── ITEM MANAGEMENT ── */
 function updateSelectors() {
-    document.getElementById("new-item-area").innerHTML = areas.map(a => `<option value="${a}">${a}</option>`).join("");
-    document.getElementById("new-item-cat").innerHTML  = categories.map(c => `<option value="${c}">${c}</option>`).join("");
+    document.getElementById("new-item-area").innerHTML = areas.map(a => '<option value="' + a + '">' + a + '</option>').join("");
+    document.getElementById("new-item-cat").innerHTML  = categories.map(c => '<option value="' + c + '">' + c + '</option>').join("");
 }
 
 async function addItem() {
     const nameEl = document.getElementById("new-item-name");
     const name   = nameEl.value.trim();
     if (!name) { nameEl.focus(); return; }
-
     rumble(40);
     const newItem = {
-        id:            "item_" + Date.now(),
-        name,
+        id: "item_" + Date.now(), name,
         area:          document.getElementById("new-item-area").value,
         category:      document.getElementById("new-item-cat").value,
         unit:          document.getElementById("new-item-unit").value.trim() || "Units",
         min_required:  Math.max(1, parseInt(document.getElementById("new-item-min").value) || 5),
         current_count: 0
     };
-
     items.push(newItem);
-    saveLocalState();
-    renderWorkerForm();
-    renderManagerView();
-
-    // Reset form
+    saveLocalState(); renderWorkerForm(); renderManagerView();
     nameEl.value = "";
     document.getElementById("new-item-unit").value = "";
     document.getElementById("new-item-min").value  = "5";
-
-    if (GAS_URL) {
-        fetch(GAS_URL, {
-            method: "POST", mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pin: APP_PIN, action: "addItem", item: newItem })
-        }).catch(() => {});
-    }
+    if (GAS_URL) fetch(GAS_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ pin:APP_PIN, action:"addItem", item:newItem }) }).catch(()=>{});
 }
 
 async function deleteItem(id) {
     const item = items.find(i => i.id === id);
-    if (!item) return;
-    if (!confirm(`Delete "${item.name}" from the inventory list?`)) return;
+    if (!item || !confirm('Delete "' + item.name + '" from inventory?')) return;
     rumble(60);
-
     items = items.filter(i => i.id !== id);
-    saveLocalState();
-    renderWorkerForm();
-    renderManagerView();
-
-    if (GAS_URL) {
-        fetch(GAS_URL, {
-            method: "POST", mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pin: APP_PIN, action: "deleteItem", id })
-        }).catch(() => {});
-    }
+    saveLocalState(); renderWorkerForm(); renderManagerView();
+    if (GAS_URL) fetch(GAS_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ pin:APP_PIN, action:"deleteItem", id }) }).catch(()=>{});
 }
 
 async function addArea() {
     const input = document.getElementById("new-area-input");
-    const name  = input.value.trim();
-    if (!name) return;
-    areas.push(name);
-    saveLocalState();
-    updateSelectors();
-    renderWorkerForm();
-    input.value = "";
-
-    if (GAS_URL) {
-        fetch(GAS_URL, {
-            method: "POST", mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pin: APP_PIN, action: "addArea", name })
-        }).catch(() => {});
-    }
+    const name  = input.value.trim(); if (!name) return;
+    areas.push(name); saveLocalState(); updateSelectors(); renderWorkerForm(); input.value = "";
+    if (GAS_URL) fetch(GAS_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ pin:APP_PIN, action:"addArea", name }) }).catch(()=>{});
 }
 
 async function addCategory() {
     const input = document.getElementById("new-cat-input");
-    const name  = input.value.trim();
-    if (!name) return;
-    categories.push(name);
-    saveLocalState();
-    updateSelectors();
-    input.value = "";
-
-    if (GAS_URL) {
-        fetch(GAS_URL, {
-            method: "POST", mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pin: APP_PIN, action: "addCategory", name })
-        }).catch(() => {});
-    }
+    const name  = input.value.trim(); if (!name) return;
+    categories.push(name); saveLocalState(); updateSelectors(); input.value = "";
+    if (GAS_URL) fetch(GAS_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ pin:APP_PIN, action:"addCategory", name }) }).catch(()=>{});
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   PIN AUTH
-───────────────────────────────────────────────────────── */
+/* ── PIN AUTH ── */
 let pinInput = "";
 
 function pressKey(n) {
     if (pinInput.length >= 4) return;
-    rumble(30);
-    pinInput += n;
-    renderPinDots();
+    rumble(30); pinInput += n; renderPinDots();
     if (pinInput.length === 4) setTimeout(checkPin, 150);
 }
-
-function clearPin() {
-    rumble(50);
-    pinInput = "";
-    renderPinDots();
-}
-
+function clearPin() { rumble(50); pinInput = ""; renderPinDots(); }
 function renderPinDots() {
     const dots = document.getElementById("pin-dots").children;
-    for (let i = 0; i < 4; i++) {
-        const on = i < pinInput.length;
-        dots[i].className    = "w-3.5 h-3.5 rounded-full" + (on ? " pin-on" : "");
-        dots[i].style.border = on ? "2px solid var(--accent)" : "2px solid var(--border-2)";
-    }
+    for (let i = 0; i < 4; i++) dots[i].classList.toggle("on", i < pinInput.length);
 }
-
 function checkPin() {
     if (pinInput === APP_PIN) {
-        isAuthenticated = true;
-        pinInput = "";
-        renderPinDots();
-        rumble([60, 40, 80]);
-        showView("manager");
+        isAuthenticated = true; pinInput = ""; renderPinDots();
+        rumble([50,30,70]); showView("manager");
     } else {
-        rumble([200, 100, 200]);
-        pinInput = "";
-        renderPinDots();
+        rumble([180, 80, 180]); pinInput = ""; renderPinDots();
         document.getElementById("pin-dots").animate(
-            [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(0)" }],
-            { duration: 360 }
+            [{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(7px)"},{transform:"translateX(0)"}],
+            {duration:340}
         );
     }
 }
+function lockManager() { rumble(80); isAuthenticated = false; switchTab("worker"); }
 
-function lockManager() {
-    rumble(80);
-    isAuthenticated = false;
-    switchTab("worker");
-}
-
-
-/* ─────────────────────────────────────────────────────────
-   NAVIGATION
-───────────────────────────────────────────────────────── */
+/* ── NAVIGATION ── */
 function switchTab(tab) {
     rumble(30);
-    const isManager = tab === "mgr";
-    document.getElementById("nav-worker-btn").classList.toggle("active", !isManager);
-    document.getElementById("nav-mgr-btn").classList.toggle("active", isManager);
-
-    if (!isManager) {
-        showView("worker");
-    } else {
-        showView(isAuthenticated ? "manager" : "auth");
-    }
+    const isMgr = tab === "mgr";
+    document.getElementById("nav-worker-btn").classList.toggle("active", !isMgr);
+    document.getElementById("nav-mgr-btn").classList.toggle("active",    isMgr);
+    showView(!isMgr ? "worker" : isAuthenticated ? "manager" : "auth");
 }
 
 function showView(v) {
@@ -885,40 +937,33 @@ function showView(v) {
 }
 
 function switchMgrTab(tab) {
-    rumble(25);
-    activeMgrTab = tab;
+    rumble(25); activeMgrTab = tab;
     document.getElementById("tab-overview").classList.toggle("hidden",     tab !== "overview");
     document.getElementById("tab-setup").classList.toggle("hidden",        tab !== "setup");
     document.getElementById("tab-btn-overview").classList.toggle("active", tab === "overview");
     document.getElementById("tab-btn-setup").classList.toggle("active",    tab === "setup");
 }
 
-
-/* ─────────────────────────────────────────────────────────
-   UTILITIES
-───────────────────────────────────────────────────────── */
+/* ── UTILITIES ── */
 function getTimestamp() {
-    const now = new Date();
-    const d   = now.getDate();
-    const mo  = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const sfx = (d === 1 || d === 21 || d === 31) ? "st" : (d === 2 || d === 22) ? "nd" : (d === 3 || d === 23) ? "rd" : "th";
-    return `${d}${sfx} ${mo[now.getMonth()]} ${now.getFullYear()} — ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const n = new Date(), d = n.getDate();
+    const mo = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const s  = (d===1||d===21||d===31)?"st":(d===2||d===22)?"nd":(d===3||d===23)?"rd":"th";
+    return d + s + " " + mo[n.getMonth()] + " " + n.getFullYear() + " — " + pad(n.getHours()) + ":" + pad(n.getMinutes());
 }
-
 function pad(n) { return String(n).padStart(2, "0"); }
 
 function syncTheme() {
-    const h   = new Date().getHours();
-    const day = h >= 6 && h < 18;
+    const h   = new Date().getHours(), day = h >= 6 && h < 18;
     document.getElementById("app-body").classList.toggle("dark", !day);
     document.getElementById("theme-indicator").textContent = day ? "Daylight Mode" : "Night Ops Mode";
 }
 
 function toggleContrast() {
     rumble(30);
-    const body = document.getElementById("app-body");
-    body.classList.toggle("hc");
-    document.getElementById("hc-btn").classList.toggle("on", body.classList.contains("hc"));
+    const b = document.getElementById("app-body");
+    b.classList.toggle("hc");
+    document.getElementById("hc-btn").classList.toggle("on", b.classList.contains("hc"));
 }
 
 function rumble(d) { if ("vibrate" in navigator) navigator.vibrate(d); }
