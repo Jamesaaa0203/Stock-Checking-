@@ -35,7 +35,7 @@
         .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); }
         .wordmark { font-weight:700; letter-spacing:-.02em; font-size:19px; line-height:1; }
         .wordmark .sub { color:var(--accent); }
-        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; font-weight:600; color:var(--text-mut); }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius999px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; font-weight:600; color:var(--text-mut); }
         .icon-btn { width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut); transition:color .2s,background .2s; }
         .icon-btn.on { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,transparent); background:color-mix(in srgb,var(--accent) 12%,transparent); }
         .dot { width:8px; height:8px; border-radius:999px; flex:none; }
@@ -44,7 +44,6 @@
         .keypad-btn { background:var(--surface); border:1px solid var(--border-2); border-radius:16px; box-shadow:var(--shadow); font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; color:var(--text); padding:16px 0; transition:transform .1s,background .15s; }
         .keypad-btn:active { transform:scale(.93); background:var(--surface-2); }
         
-        /* Stock specific adjustments */
         .stock-input { background:var(--bg-soft); border:1px solid var(--border-2); color:var(--text); font-family:'Space Grotesk',sans-serif; text-align:center; font-weight:600; }
         .stock-input:focus { border-color:var(--accent); outline:none; }
         .data-table { width:100%; border-collapse:collapse; font-size:12px; }
@@ -64,6 +63,7 @@
 </head>
 <body id="app-body" class="flex flex-col min-h-screen antialiased">
 
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
     <header class="sticky top-0 z-40 px-4 py-3 flex justify-between items-center"
             style="background:color-mix(in srgb,var(--surface) 90%,transparent); backdrop-filter:saturate(1.4) blur(14px); -webkit-backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid var(--border); padding-top:calc(.75rem + env(safe-area-inset-top));">
         <div class="flex items-center gap-2.5">
@@ -85,6 +85,7 @@
         </div>
     </header>
 
+    <!-- ── VIEW 1: TEAM LEADER WEEKLY ENTRY ───────────────────── -->
     <main id="dashboard-view" class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full">
         <div class="flex items-center justify-between px-1 pt-1">
             <span class="eyebrow">Weekly Verification · Semakan Mingguan</span>
@@ -97,10 +98,19 @@
                     <h3 class="font-semibold text-sm">Farm Infrastructure Items</h3>
                     <p class="text-xs" style="color:var(--text-mut);">Key in values found at storage sites</p>
                 </div>
-                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Week 25</span>
+                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Active Checklist</span>
             </div>
             
+            <!-- Dynamic Item Entry Forms Injection -->
             <div id="leader-items-container" class="space-y-3.5"></div>
+
+            <!-- Ad-hoc Add Item Action Element -->
+            <div class="pt-2" style="border-top:1px dashed var(--border);">
+                <div class="flex gap-2">
+                    <input type="text" id="new-item-name" placeholder="Add custom or missing item name..." class="flex-1 text-xs px-3 py-2 rounded-xl bg-[var(--bg-soft)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
+                    <button onclick="addNewItemByLeader()" class="px-3 py-2 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add</button>
+                </div>
+            </div>
 
             <button onclick="submitWeeklyStock()" class="w-full mt-2 py-3 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]" style="background:var(--accent); box-shadow: var(--shadow);">
                 Submit Weekly Count
@@ -108,6 +118,7 @@
         </div>
     </main>
 
+    <!-- ── VIEW 2: MANAGER PIN AUTH TERMINAL ──────────────────── -->
     <main id="manager-auth-view" class="hidden flex-1 p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full pb-28">
         <div class="w-full text-center space-y-5 max-w-xs">
             <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);">
@@ -133,6 +144,7 @@
         </div>
     </main>
 
+    <!-- ── VIEW 3: OFFICE MANAGEMENT SYSTEM EXECUTIVE TERMINAL ── -->
     <main id="manager-dashboard-view" class="hidden flex-1 flex flex-col min-h-0 w-full">
         <div class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full overflow-y-auto">
             
@@ -146,6 +158,7 @@
                 </button>
             </div>
 
+            <!-- Dashboard Analytics Indicators -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="kpi" style="--kpi-hue:var(--alert);">
                     <div class="kpi-label">Critically Low Items</div>
@@ -157,6 +170,7 @@
                 </div>
             </div>
 
+            <!-- Master Inventory Status Table -->
             <div class="card p-4">
                 <div class="eyebrow mb-2">Master Inventory Ledger</div>
                 <div class="overflow-x-auto">
@@ -169,23 +183,23 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody id="inventory-table-body">
-                            </tbody>
+                        <tbody id="inventory-table-body"></tbody>
                     </table>
                 </div>
             </div>
 
+            <!-- Dynamic Procurement Purchase Recommendation Card -->
             <div class="card p-4 space-y-3">
                 <div class="flex justify-between items-center">
                     <div class="eyebrow">Auto-Generated Sourcing List</div>
                     <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Alibaba Ready</span>
                 </div>
-                <div id="procurement-list" class="space-y-2 divide-y divide-[var(--border)]">
-                    </div>
+                <div id="procurement-list" class="space-y-2 divide-y divide-[var(--border)]"></div>
             </div>
         </div>
     </main>
 
+    <!-- ── BOTTOM NAVIGATION FRAMEWORK ────────────────────────── -->
     <nav class="navbar fixed bottom-0 left-0 right-0 z-40 px-8 pt-2.5 flex justify-around items-center max-w-md mx-auto w-full">
         <button onclick="switchTab('ops')" id="nav-ops-btn" class="nav-btn active flex flex-col items-center gap-1 py-1">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
@@ -197,28 +211,26 @@
         </button>
     </nav>
 
+    <!-- ── APPLICATION CORE DATA & ROUTING ENGINE ────────────── -->
     <script>
-        const MASTER_PIN = "3653"; // Matches existing authentication token
+        const MASTER_PIN = "3653";
         let inputPin = "";
         let isManagerAuthenticated = false;
 
-        // Mock Inventory DB matching industrial sourcing requirements
+        // Inventory DB with clean standard properties
         let inventoryDataset = [
             { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20 },
             { id: "item_2", name: "Greenhouse Poly Film UV", current: 5, min_required: 12 },
             { id: "item_3", name: "Dissolved Oxygen Mesh Caps", current: 45, min_required: 30 },
-            { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 },
-            { id: "item_5", name: "PVC Mainline Valves 50mm", current: 19, min_required: 15 }
+            { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 }
         ];
 
-        /* ── Core Initializers ── */
         window.addEventListener('DOMContentLoaded', () => {
             renderLeaderInputForm();
             renderManagerLedger();
-            synchronizeSystemTheme();
+            initClockEngine();
         });
 
-        /* ── UI Core Render Components ── */
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
             container.innerHTML = inventoryDataset.map(item => `
@@ -233,15 +245,31 @@
             `).join('');
         }
 
+        /* ── Ad-hoc Item Handling added by Team Leaders ── */
+        function addNewItemByLeader() {
+            const nameInput = document.getElementById('new-item-name');
+            const name = nameInput.value.trim();
+            if(!name) return;
+            
+            rumbleDevice(30);
+            const newId = "custom_" + Date.now();
+            inventoryDataset.push({
+                id: newId,
+                name: name,
+                current: 0,
+                min_required: 10 // Safe default min limit for newly custom added resources
+            });
+            
+            nameInput.value = "";
+            renderLeaderInputForm();
+            renderManagerLedger();
+        }
+
         function renderManagerLedger() {
             const tbody = document.getElementById('inventory-table-body');
             const procList = document.getElementById('procurement-list');
-            
-            let criticalCount = 0;
-            let procureCount = 0;
-            
-            let tbodyHtml = "";
-            let procHtml = "";
+            let criticalCount = 0, procureCount = 0;
+            let tbodyHtml = "", procHtml = "";
 
             inventoryDataset.forEach(item => {
                 const delta = item.min_required - item.current;
@@ -281,24 +309,37 @@
             });
 
             tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No entries found.</td></tr>`;
-            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ All material reserves metrics nominal. No procurement required.</p>`;
+            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ All material reserves metrics nominal.</p>`;
             
             document.getElementById('kpi-critical-count').textContent = criticalCount;
             document.getElementById('kpi-procure-count').textContent = procureCount;
         }
 
-        /* ── Data Management Pipeline ── */
         function updateLocalCacheValue(id, value) {
             const targetItem = inventoryDataset.find(i => i.id === id);
-            if (targetItem) {
-                targetItem.current = parseInt(value) || 0;
-            }
+            if (targetItem) targetItem.current = parseInt(value) || 0;
+        }
+
+        /* ── Dynamic Timestamp Formatting Function ── */
+        function getFormattedTimestamp() {
+            const now = new Date();
+            const day = now.getDate();
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            
+            // Ordinal suffix generation engine
+            let suffix = 'th';
+            if (day === 1 || day === 21 || day === 31) suffix = 'st';
+            else if (day === 2 || day === 22) suffix = 'nd';
+            else if (day === 3 || day === 23) suffix = 'rd';
+
+            const timeStr = now.toTimeString().substring(0, 5);
+            return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} - ${timeStr}`;
         }
 
         function submitWeeklyStock() {
             rumbleDevice(60);
-            // In the future development stage, replace this layout with your Google Apps Script fetch function
-            alert("Weekly database metrics cached locally! Access the 'Office Desk' tab to view generated configurations.");
+            const ts = getFormattedTimestamp();
+            alert(`Count successfully recorded at timestamp:\n[ ${ts} ]\n\nThis exact string data package will be pushed straight into your Google Sheet record row during final integration.`);
             renderManagerLedger();
         }
 
@@ -328,15 +369,11 @@
 
         function verifyPin() {
             if (inputPin === MASTER_PIN) {
-                inputPin = "";
-                renderPinDots();
-                rumbleDevice([80, 50, 80]);
+                inputPin = ""; renderPinDots(); rumbleDevice([80, 50, 80]);
                 isManagerAuthenticated = true;
                 switchTab('mgr');
             } else {
-                rumbleDevice([300, 100, 300]);
-                inputPin = "";
-                renderPinDots();
+                rumbleDevice([300, 100, 300]); inputPin = ""; renderPinDots();
                 document.getElementById('pin-dots').animate([
                     { transform: 'translateX(0)' }, { transform: 'translateX(-8px)' },
                     { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }
@@ -350,7 +387,6 @@
             switchTab('ops');
         }
 
-        /* ── Nav Routing and Display Management ── */
         function switchTab(target) {
             rumbleDevice(35);
             const ops = document.getElementById('dashboard-view');
@@ -360,30 +396,24 @@
             const mBtn = document.getElementById('nav-mgr-btn');
 
             if (target === 'ops') {
-                ops.classList.remove('hidden');
-                auth.classList.add('hidden');
-                mgr.classList.add('hidden');
-                oBtn.classList.add('active');
-                mBtn.classList.remove('active');
+                ops.classList.remove('hidden'); auth.classList.add('hidden'); mgr.classList.add('hidden');
+                oBtn.classList.add('active'); mBtn.classList.remove('active');
             } else {
-                ops.classList.add('hidden');
-                oBtn.classList.remove('active');
-                mBtn.classList.add('active');
+                ops.classList.add('hidden'); oBtn.classList.remove('active'); mBtn.classList.add('active');
                 if (isManagerAuthenticated) {
-                    mgr.classList.remove('hidden');
-                    auth.classList.add('hidden');
+                    mgr.classList.remove('hidden'); auth.classList.add('hidden');
                 } else {
-                    auth.classList.remove('hidden');
-                    mgr.classList.add('hidden');
+                    auth.classList.remove('hidden'); mgr.classList.add('hidden');
                 }
             }
         }
 
-        /* ── Utility Engines (Theme, Clock, Haptics) ── */
+        /* ── Theme & Clock Sync Engines ── */
         function synchronizeSystemTheme() {
             const h = new Date().getHours();
             const b = document.getElementById('app-body');
             const i = document.getElementById('theme-indicator');
+            // Automatic day/night switching logic
             if (h >= 6 && h < 18) {
                 b.classList.remove('dark');
                 i.textContent = "Daylight Mode";
@@ -404,11 +434,13 @@
             if ('vibrate' in navigator) navigator.vibrate(d);
         }
 
-        setInterval(() => {
-            const d = new Date();
-            document.getElementById('live-clock').textContent = d.toTimeString().substring(0, 5);
-            synchronizeSystemTheme();
-        }, 1000);
+        function initClockEngine() {
+            setInterval(() => {
+                const d = new Date();
+                document.getElementById('live-clock').textContent = d.toTimeString().substring(0, 5);
+                synchronizeSystemTheme();
+            }, 1000);
+        }
     </script>
 </body>
 </html>
