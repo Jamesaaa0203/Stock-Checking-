@@ -713,13 +713,19 @@ function renderWorkerForm() {
         return;
     }
 
-    let html = "";
-    let any  = false;
+    // Derive sections from actual item data — never depends on the areas cache.
+    // Respects the order of the configured areas list, then appends any extras.
+    const itemAreas    = [...new Set(items.map(i => i.area).filter(Boolean))];
+    const orderedAreas = [
+        ...areas.filter(a => itemAreas.includes(a)),
+        ...itemAreas.filter(a => !areas.includes(a))
+    ];
 
-    areas.forEach(area => {
+    let html = "";
+
+    orderedAreas.forEach(area => {
         const areaItems = items.filter(i => i.area === area);
         if (!areaItems.length) return;
-        any = true;
 
         html += '<div class="area-section">';
         html += '<div class="area-hdr"><span class="area-hdr-name">' + area + '</span><span class="area-hdr-count">' + areaItems.length + '</span></div>';
@@ -743,17 +749,7 @@ function renderWorkerForm() {
         html += '</div>';
     });
 
-    const orphans = items.filter(i => !areas.includes(i.area));
-    if (orphans.length) {
-        any = true;
-        html += '<div class="area-section"><div class="area-hdr"><span class="area-hdr-name">Other</span><span class="area-hdr-count">' + orphans.length + '</span></div>';
-        orphans.forEach(item => {
-            html += '<div class="item-row"><div class="item-info"><span class="item-name">' + item.name + '</span><span class="item-meta">' + item.area + ' · ' + (item.unit || 'units') + ' · Min ' + item.min_required + '</span></div><input type="number" id="inp_' + item.id + '" value="' + item.current_count + '" min="0" class="cnt" onchange="localUpdate(\'' + item.id + '\', this.value)"></div>';
-        });
-        html += '</div>';
-    }
-
-    container.innerHTML = any ? html : '<div class="area-section"><p class="empty-msg">No items match configured areas.</p></div>';
+    container.innerHTML = html || '<div class="area-section"><p class="empty-msg">No items to display.</p></div>';
 }
 
 function localUpdate(id, val) {
