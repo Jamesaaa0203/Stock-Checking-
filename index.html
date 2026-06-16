@@ -35,7 +35,7 @@
         .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); }
         .wordmark { font-weight:700; letter-spacing:-.02em; font-size:19px; line-height:1; }
         .wordmark .sub { color:var(--accent); }
-        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius999px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; font-weight:600; color:var(--text-mut); }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; font-weight:600; color:var(--text-mut); }
         .icon-btn { width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut); transition:color .2s,background .2s; }
         .icon-btn.on { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,transparent); background:color-mix(in srgb,var(--accent) 12%,transparent); }
         .dot { width:8px; height:8px; border-radius:999px; flex:none; }
@@ -63,7 +63,6 @@
 </head>
 <body id="app-body" class="flex flex-col min-h-screen antialiased">
 
-    <!-- ── HEADER ─────────────────────────────────────────────── -->
     <header class="sticky top-0 z-40 px-4 py-3 flex justify-between items-center"
             style="background:color-mix(in srgb,var(--surface) 90%,transparent); backdrop-filter:saturate(1.4) blur(14px); -webkit-backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid var(--border); padding-top:calc(.75rem + env(safe-area-inset-top));">
         <div class="flex items-center gap-2.5">
@@ -74,7 +73,7 @@
             </svg>
             <div>
                 <div class="wordmark">Bon Aqua <span class="sub">Stock</span></div>
-                <div id="theme-indicator" class="eyebrow" style="margin-top:2px;">Daylight Mode</div>
+                <div id="theme-indicator" class="eyebrow" style="margin-top:2px;">Syncing Theme...</div>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -85,7 +84,6 @@
         </div>
     </header>
 
-    <!-- ── VIEW 1: TEAM LEADER WEEKLY ENTRY ───────────────────── -->
     <main id="dashboard-view" class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full">
         <div class="flex items-center justify-between px-1 pt-1">
             <span class="eyebrow">Weekly Verification · Semakan Mingguan</span>
@@ -98,27 +96,26 @@
                     <h3 class="font-semibold text-sm">Farm Infrastructure Items</h3>
                     <p class="text-xs" style="color:var(--text-mut);">Key in values found at storage sites</p>
                 </div>
-                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Active Checklist</span>
+                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Live Checklist</span>
             </div>
             
-            <!-- Dynamic Item Entry Forms Injection -->
-            <div id="leader-items-container" class="space-y-3.5"></div>
+            <div id="leader-items-container" class="space-y-3.5">
+                <p class="text-xs text-center text-[var(--text-dim)] py-4">Fetching active inventory database lines...</p>
+            </div>
 
-            <!-- Ad-hoc Add Item Action Element -->
             <div class="pt-2" style="border-top:1px dashed var(--border);">
                 <div class="flex gap-2">
-                    <input type="text" id="new-item-name" placeholder="Add custom or missing item name..." class="flex-1 text-xs px-3 py-2 rounded-xl bg-[var(--bg-soft)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
+                    <input type="text" id="new-item-name" placeholder="Add custom or missing item name..." class="flex-1 text-xs px-3 py-2 rounded-xl bg-[var(--bg-soft)] border border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
                     <button onclick="addNewItemByLeader()" class="px-3 py-2 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add</button>
                 </div>
             </div>
 
-            <button onclick="submitWeeklyStock()" class="w-full mt-2 py-3 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]" style="background:var(--accent); box-shadow: var(--shadow);">
+            <button id="submit-btn" onclick="submitWeeklyStock()" class="w-full mt-2 py-3 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]" style="background:var(--accent); box-shadow: var(--shadow);">
                 Submit Weekly Count
             </button>
         </div>
     </main>
 
-    <!-- ── VIEW 2: MANAGER PIN AUTH TERMINAL ──────────────────── -->
     <main id="manager-auth-view" class="hidden flex-1 p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full pb-28">
         <div class="w-full text-center space-y-5 max-w-xs">
             <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);">
@@ -126,7 +123,7 @@
             </div>
             <div>
                 <h2 class="text-lg font-semibold tracking-tight">Management Terminal</h2>
-                <p class="text-sm" style="color:var(--text-mut);margin-top:2px;">Enter programmatic authorization code</p>
+                <p class="text-sm" style="color:var(--text-mut);margin-top:2px;">Enter operational PIN</p>
             </div>
             <div class="flex justify-center gap-3.5 py-2" id="pin-dots">
                 <span class="w-3.5 h-3.5 rounded-full" style="border:2px solid var(--border-2);"></span>
@@ -144,21 +141,19 @@
         </div>
     </main>
 
-    <!-- ── VIEW 3: OFFICE MANAGEMENT SYSTEM EXECUTIVE TERMINAL ── -->
     <main id="manager-dashboard-view" class="hidden flex-1 flex flex-col min-h-0 w-full">
         <div class="flex-1 p-4 space-y-4 pb-28 max-w-md mx-auto w-full overflow-y-auto">
             
             <div class="flex justify-between items-start px-1">
                 <div>
-                    <span class="eyebrow">물류 및 자재 관리 콘솔</span>
-                    <h3 class="text-2xl font-semibold tracking-tight" style="margin-top:2px;">Procurement Review</h3>
+                    <span class="eyebrow">최고 경영자 콘솔</span>
+                    <h3 class="text-2xl font-semibold tracking-tight" style="margin-top:2px;">Executive Terminal</h3>
                 </div>
                 <button onclick="lockManagerView()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style="background:color-mix(in srgb,var(--alert) 12%,transparent);color:var(--alert);border:1px solid color-mix(in srgb,var(--alert) 26%,transparent);">
-                    Lock Console
+                    Lock
                 </button>
             </div>
 
-            <!-- Dashboard Analytics Indicators -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="kpi" style="--kpi-hue:var(--alert);">
                     <div class="kpi-label">Critically Low Items</div>
@@ -170,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- Master Inventory Status Table -->
             <div class="card p-4">
                 <div class="eyebrow mb-2">Master Inventory Ledger</div>
                 <div class="overflow-x-auto">
@@ -188,53 +182,74 @@
                 </div>
             </div>
 
-            <!-- Dynamic Procurement Purchase Recommendation Card -->
             <div class="card p-4 space-y-3">
                 <div class="flex justify-between items-center">
                     <div class="eyebrow">Auto-Generated Sourcing List</div>
-                    <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Alibaba Ready</span>
+                    <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Alibaba Sourcing</span>
                 </div>
                 <div id="procurement-list" class="space-y-2 divide-y divide-[var(--border)]"></div>
             </div>
         </div>
     </main>
 
-    <!-- ── BOTTOM NAVIGATION FRAMEWORK ────────────────────────── -->
     <nav class="navbar fixed bottom-0 left-0 right-0 z-40 px-8 pt-2.5 flex justify-around items-center max-w-md mx-auto w-full">
         <button onclick="switchTab('ops')" id="nav-ops-btn" class="nav-btn active flex flex-col items-center gap-1 py-1">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-            <span class="nav-label">Stock Check</span>
+            <span class="nav-label">Ops Home</span>
         </button>
         <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn flex flex-col items-center gap-1 py-1">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
-            <span class="nav-label">Office Desk</span>
+            <span class="nav-label">Manager</span>
         </button>
     </nav>
 
-    <!-- ── APPLICATION CORE DATA & ROUTING ENGINE ────────────── -->
     <script>
+        // REPLACE THIS STRING WITH YOUR GOOGLE APPS SCRIPT WEB APP URL:
+        const GAS_DEPLOYMENT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; 
+        
         const MASTER_PIN = "3653";
         let inputPin = "";
         let isManagerAuthenticated = false;
-
-        // Inventory DB with clean standard properties
-        let inventoryDataset = [
-            { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20 },
-            { id: "item_2", name: "Greenhouse Poly Film UV", current: 5, min_required: 12 },
-            { id: "item_3", name: "Dissolved Oxygen Mesh Caps", current: 45, min_required: 30 },
-            { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 }
-        ];
+        let inventoryDataset = [];
+        let newlyAddedCustomItems = [];
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderLeaderInputForm();
-            renderManagerLedger();
+            fetchActiveSheetsDatabase();
             initClockEngine();
         });
+
+        /* ── Remote GAS Data Pipeline Fetcher ── */
+        async function fetchActiveSheetsDatabase() {
+            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
+                // Fallback default mockup dataset if macro app URL is left unconfigured
+                inventoryDataset = [
+                    { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20 },
+                    { id: "item_2", name: "Greenhouse Poly Film UV", current: 5, min_required: 12 },
+                    { id: "item_3", name: "Dissolved Oxygen Mesh Caps", current: 45, min_required: 30 },
+                    { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 }
+                ];
+                renderLeaderInputForm();
+                renderManagerLedger();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${GAS_DEPLOYMENT_URL}?action=getItems&pin=${MASTER_PIN}`);
+                const resData = await response.json();
+                if (resData.status === "success") {
+                    inventoryDataset = resData.data;
+                    renderLeaderInputForm();
+                    renderManagerLedger();
+                }
+            } catch (err) {
+                console.error("Sheets dataset sync dropped:", err);
+            }
+        }
 
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
             container.innerHTML = inventoryDataset.map(item => `
-                <div class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+                <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all">
                     <span class="text-xs font-semibold tracking-tight text-[var(--text)] max-w-[240px]">${item.name}</span>
                     <input type="number" 
                            id="input_${item.id}" 
@@ -245,20 +260,17 @@
             `).join('');
         }
 
-        /* ── Ad-hoc Item Handling added by Team Leaders ── */
         function addNewItemByLeader() {
             const nameInput = document.getElementById('new-item-name');
             const name = nameInput.value.trim();
             if(!name) return;
             
             rumbleDevice(30);
-            const newId = "custom_" + Date.now();
-            inventoryDataset.push({
-                id: newId,
-                name: name,
-                current: 0,
-                min_required: 10 // Safe default min limit for newly custom added resources
-            });
+            const customId = "custom_" + Date.now();
+            const newItemObj = { id: customId, name: name, current: 0, min_required: 10 };
+            
+            inventoryDataset.push(newItemObj);
+            newlyAddedCustomItems.push(newItemObj);
             
             nameInput.value = "";
             renderLeaderInputForm();
@@ -277,8 +289,7 @@
                 
                 if (item.current <= item.min_required * 0.4) {
                     statusBadge = `<span class="pill bg-rose-500/10 text-[var(--alert)]">Critical</span>`;
-                    criticalCount++;
-                    procureCount++;
+                    criticalCount++; procureCount++;
                 } else if (item.current < item.min_required) {
                     statusBadge = `<span class="pill bg-amber-500/10 text-[var(--attention)]">Low Stock</span>`;
                     procureCount++;
@@ -300,7 +311,7 @@
                         <div class="flex justify-between items-center pt-2 first:pt-0">
                             <div>
                                 <p class="text-xs font-semibold">${item.name}</p>
-                                <p class="text-[10px]" style="color:var(--text-dim);">Shortfall deficiency metrics: ${delta} units</p>
+                                <p class="text-[10px]" style="color:var(--text-dim);">Shortfall order target: ${delta} items</p>
                             </div>
                             <span class="num font-bold text-sm text-[var(--attention)]">+${delta}</span>
                         </div>
@@ -308,8 +319,8 @@
                 }
             });
 
-            tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No entries found.</td></tr>`;
-            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ All material reserves metrics nominal.</p>`;
+            tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No rows cached.</td></tr>`;
+            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ System reserves look stable.</p>`;
             
             document.getElementById('kpi-critical-count').textContent = criticalCount;
             document.getElementById('kpi-procure-count').textContent = procureCount;
@@ -320,44 +331,70 @@
             if (targetItem) targetItem.current = parseInt(value) || 0;
         }
 
-        /* ── Dynamic Timestamp Formatting Function ── */
+        /* ── Dynamic Ordinal Timestamp Calculator ── */
         function getFormattedTimestamp() {
             const now = new Date();
             const day = now.getDate();
-            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
             
-            // Ordinal suffix generation engine
             let suffix = 'th';
             if (day === 1 || day === 21 || day === 31) suffix = 'st';
             else if (day === 2 || day === 22) suffix = 'nd';
             else if (day === 3 || day === 23) suffix = 'rd';
 
-            const timeStr = now.toTimeString().substring(0, 5);
-            return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} - ${timeStr}`;
+            const hrs = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            
+            return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} — ${hrs}:${mins}`;
         }
 
-        function submitWeeklyStock() {
+        /* ── POST Request Data Submitter ── */
+        async function submitWeeklyStock() {
             rumbleDevice(60);
-            const ts = getFormattedTimestamp();
-            alert(`Count successfully recorded at timestamp:\n[ ${ts} ]\n\nThis exact string data package will be pushed straight into your Google Sheet record row during final integration.`);
-            renderManagerLedger();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Pushing to Database Sheets...";
+
+            const dataPayload = {
+                pin: MASTER_PIN,
+                timestamp: getFormattedTimestamp(),
+                items: inventoryDataset,
+                newItems: newlyAddedCustomItems
+            };
+
+            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
+                alert(`No Apps Script URL Found.\nLocal submission generation simulation success:\n\nTimestamp generated: ${dataPayload.timestamp}`);
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Weekly Count";
+                return;
+            }
+
+            try {
+                const response = await fetch(GAS_DEPLOYMENT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dataPayload)
+                });
+                
+                alert("✓ Stock records updated in master workbook!");
+                newlyAddedCustomItems = [];
+                fetchActiveSheetsDatabase();
+            } catch (err) {
+                alert("Network communication timeout: " + err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Weekly Count";
+            }
         }
 
         /* ── System Access Authorization Controls (PIN) ── */
         function pressKey(n) {
             if (inputPin.length >= 4) return;
-            rumbleDevice(40);
-            inputPin += n;
-            renderPinDots();
+            rumbleDevice(40); inputPin += n; renderPinDots();
             if (inputPin.length === 4) setTimeout(verifyPin, 150);
         }
-
-        function clearPin() {
-            rumbleDevice(60);
-            inputPin = "";
-            renderPinDots();
-        }
-
+        function clearPin() { rumbleDevice(60); inputPin = ""; renderPinDots(); }
         function renderPinDots() {
             const dots = document.getElementById('pin-dots').children;
             for (let i = 0; i < 4; i++) {
@@ -366,12 +403,10 @@
                 dots[i].style.border = on ? "2px solid var(--accent)" : "2px solid var(--border-2)";
             }
         }
-
         function verifyPin() {
             if (inputPin === MASTER_PIN) {
                 inputPin = ""; renderPinDots(); rumbleDevice([80, 50, 80]);
-                isManagerAuthenticated = true;
-                switchTab('mgr');
+                isManagerAuthenticated = true; switchTab('mgr');
             } else {
                 rumbleDevice([300, 100, 300]); inputPin = ""; renderPinDots();
                 document.getElementById('pin-dots').animate([
@@ -380,12 +415,7 @@
                 ], { duration: 360 });
             }
         }
-
-        function lockManagerView() {
-            rumbleDevice(100);
-            isManagerAuthenticated = false;
-            switchTab('ops');
-        }
+        function lockManagerView() { rumbleDevice(100); isManagerAuthenticated = false; switchTab('ops'); }
 
         function switchTab(target) {
             rumbleDevice(35);
@@ -408,12 +438,11 @@
             }
         }
 
-        /* ── Theme & Clock Sync Engines ── */
+        /* ── Automation Environment Themes & Clock Sync ── */
         function synchronizeSystemTheme() {
             const h = new Date().getHours();
             const b = document.getElementById('app-body');
             const i = document.getElementById('theme-indicator');
-            // Automatic day/night switching logic
             if (h >= 6 && h < 18) {
                 b.classList.remove('dark');
                 i.textContent = "Daylight Mode";
@@ -422,22 +451,16 @@
                 i.textContent = "Night Ops Mode";
             }
         }
-
         function toggleContrast() {
             rumbleDevice(30);
             const b = document.getElementById('app-body');
             b.classList.toggle('hc');
             document.getElementById('hc-btn').classList.toggle('on', b.classList.contains('hc'));
         }
-
-        function rumbleDevice(d) {
-            if ('vibrate' in navigator) navigator.vibrate(d);
-        }
-
+        function rumbleDevice(d) { if ('vibrate' in navigator) navigator.vibrate(d); }
         function initClockEngine() {
             setInterval(() => {
-                const d = new Date();
-                document.getElementById('live-clock').textContent = d.toTimeString().substring(0, 5);
+                document.getElementById('live-clock').textContent = new Date().toTimeString().substring(0, 5);
                 synchronizeSystemTheme();
             }, 1000);
         }
