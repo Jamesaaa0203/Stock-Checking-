@@ -46,6 +46,8 @@
         
         .stock-input { background:var(--bg-soft); border:1px solid var(--border-2); color:var(--text); font-family:'Space Grotesk',sans-serif; text-align:center; font-weight:600; }
         .stock-input:focus { border-color:var(--accent); outline:none; }
+        .select-custom { background:var(--bg-soft); border:1px solid var(--border-2); color:var(--text); font-size:11px; font-weight:500; outline:none; padding: 8px 12px; }
+        .select-custom:focus { border-color:var(--accent); }
         .data-table { width:100%; border-collapse:collapse; font-size:12px; }
         .data-table th { font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-dim); text-align:right; padding:8px; border-bottom:1px solid var(--border); }
         .data-table th:first-child, .data-table td:first-child { text-align:left; }
@@ -93,21 +95,47 @@
         <div id="stock-entry-card" class="card p-4 space-y-4">
             <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--border);">
                 <div>
-                    <h3 class="font-semibold text-sm">Farm Infrastructure Items</h3>
-                    <p class="text-xs" style="color:var(--text-mut);">Key in values found at storage sites</p>
+                    <h3 class="font-semibold text-sm">Farm Inventory Logs</h3>
+                    <p class="text-xs" style="color:var(--text-mut);">Key in values found across farm operational areas</p>
                 </div>
-                <span class="text-xs font-bold px-2 py-1 rounded-md" style="background:var(--bg-soft); color:var(--accent);">Live Checklist</span>
             </div>
             
-            <div id="leader-items-container" class="space-y-3.5">
+            <div id="leader-items-container" class="space-y-6">
                 <p class="text-xs text-center text-[var(--text-dim)] py-4">Fetching active inventory database lines...</p>
             </div>
 
-            <div class="pt-2" style="border-top:1px dashed var(--border);">
-                <div class="flex gap-2">
-                    <input type="text" id="new-item-name" placeholder="Add custom or missing item name..." class="flex-1 text-xs px-3 py-2 rounded-xl bg-[var(--bg-soft)] border border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                    <button onclick="addNewItemByLeader()" class="px-3 py-2 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add</button>
+            <div class="pt-4 space-y-2.5 shadow-xs p-3 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
+                <span class="eyebrow block text-[var(--accent)] font-bold">Add Missing / Custom Needed Item</span>
+                <input type="text" id="new-item-name" placeholder="Item name..." class="w-full text-xs px-3 py-2.5 rounded-xl bg-[var(--bg-soft)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Target Area</label>
+                        <select id="new-item-area" class="select-custom w-full rounded-xl"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Category</label>
+                        <select id="new-item-cat" class="select-custom w-full rounded-xl">
+                            <option>Syncing list...</option>
+                        </select>
+                    </div>
                 </div>
+                <button onclick="addNewItemByLeader()" class="w-full py-2 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add Item to Checklist</button>
+            </div>
+
+            <div class="pt-2">
+                <details class="group border border-[var(--border)] rounded-2xl p-2 bg-[var(--bg-soft)] transition-all">
+                    <summary class="list-none flex justify-between items-center text-xs font-semibold cursor-pointer px-2 text-[var(--text-mut)] group-open:pb-2">
+                        <span>🛠️ Add New Category to System</span>
+                        <span class="transition-transform group-open:rotate-180 text-[10px]">▼</span>
+                    </summary>
+                    <div class="space-y-2 p-1 border-t border-[var(--border)] pt-3">
+                        <input type="text" id="new-category-name" placeholder="E.g., Plumbing Supplies, Safety Gear..." class="w-full text-xs px-3 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
+                        <button id="add-cat-btn" onclick="submitNewCategoryToSheets()" class="w-full py-2 rounded-xl text-xs font-bold text-white bg-slate-700 active:scale-95 transition-all">
+                            Save Category to Database
+                        </button>
+                    </div>
+                </details>
             </div>
 
             <button id="submit-btn" onclick="submitWeeklyStock()" class="w-full mt-2 py-3 rounded-xl text-sm font-semibold text-white transition-transform active:scale-[0.98]" style="background:var(--accent); box-shadow: var(--shadow);">
@@ -172,7 +200,7 @@
                         <thead>
                             <tr>
                                 <th>Item Descriptor</th>
-                                <th>Min Target</th>
+                                <th>Area</th>
                                 <th>Current Count</th>
                                 <th>Status</th>
                             </tr>
@@ -185,7 +213,7 @@
             <div class="card p-4 space-y-3">
                 <div class="flex justify-between items-center">
                     <div class="eyebrow">Auto-Generated Sourcing List</div>
-                    <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Alibaba Sourcing</span>
+                    <span class="pill bg-teal-500/10 text-teal-600 dark:text-teal-400">Procurement</span>
                 </div>
                 <div id="procurement-list" class="space-y-2 divide-y divide-[var(--border)]"></div>
             </div>
@@ -204,70 +232,149 @@
     </nav>
 
     <script>
-        // REPLACE THIS STRING WITH YOUR GOOGLE APPS SCRIPT WEB APP URL:
+        // PASTE YOUR RE-DEPLOYED WEB APP URL HERE:
         const GAS_DEPLOYMENT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; 
         
         const MASTER_PIN = "3653";
-        let inputPin = "";
-        let isManagerAuthenticated = false;
+        const AREALIST = ["Sea Cage", "Farm Maintenance", "Spawning & Spat", "Staff Welfare"];
+        let dynamicCategoryList = [];
+
         let inventoryDataset = [];
         let newlyAddedCustomItems = [];
 
         window.addEventListener('DOMContentLoaded', () => {
+            initAreaSelector();
             fetchActiveSheetsDatabase();
             initClockEngine();
         });
 
-        /* ── Remote GAS Data Pipeline Fetcher ── */
+        function initAreaSelector() {
+            document.getElementById('new-item-area').innerHTML = AREALIST.map(a => `<option value="${a}">${a}</option>`).join('');
+        }
+
+        function updateCategoryDropdownUI() {
+            document.getElementById('new-item-cat').innerHTML = dynamicCategoryList.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
         async function fetchActiveSheetsDatabase() {
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                // Fallback default mockup dataset if macro app URL is left unconfigured
+                dynamicCategoryList = ["Construction", "Tools & Maintenance", "Equipment & Machinery", "Electrical & Utilities", "Processing Supplies", "Office Supplies", "Cleaning & Hygiene", "Beverages & Food"];
                 inventoryDataset = [
-                    { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20 },
-                    { id: "item_2", name: "Greenhouse Poly Film UV", current: 5, min_required: 12 },
-                    { id: "item_3", name: "Dissolved Oxygen Mesh Caps", current: 45, min_required: 30 },
-                    { id: "item_4", name: "Abalone Spawning Substrates", current: 8, min_required: 25 }
+                    { id: "item_1", name: "HDPE Shade Netting (Rolls)", current: 14, min_required: 20, area: "Sea Cage", category: "Construction" },
+                    { id: "item_2", name: "Submersible Water Pump 1HP", current: 2, min_required: 4, area: "Spawning & Spat", category: "Equipment & Machinery" },
+                    { id: "item_3", name: "PVC Mainline Valves 50mm", current: 19, min_required: 15, area: "Farm Maintenance", category: "Tools & Maintenance" },
+                    { id: "item_4", name: "Drinking Water Carton Case", current: 3, min_required: 10, area: "Staff Welfare", category: "Beverages & Food" }
                 ];
+                updateCategoryDropdownUI();
                 renderLeaderInputForm();
                 renderManagerLedger();
                 return;
             }
-
             try {
                 const response = await fetch(`${GAS_DEPLOYMENT_URL}?action=getItems&pin=${MASTER_PIN}`);
                 const resData = await response.json();
                 if (resData.status === "success") {
                     inventoryDataset = resData.data;
+                    dynamicCategoryList = resData.categories || [];
+                    
+                    updateCategoryDropdownUI();
                     renderLeaderInputForm();
                     renderManagerLedger();
                 }
+            } catch (err) { console.error("Sheets sync drop:", err); }
+        }
+
+        /* ── Action: POST request data payload to append new category row ── */
+        async function submitNewCategoryToSheets() {
+            const catInput = document.getElementById('new-category-name');
+            const catName = catInput.value.trim();
+            
+            if (!catName) return;
+            rumbleDevice(50);
+            
+            const btn = document.getElementById('add-cat-btn');
+            btn.disabled = true;
+            btn.textContent = "Updating Spreadsheet Tab...";
+
+            const dataPayload = {
+                pin: MASTER_PIN,
+                action: "addCategory",
+                categoryName: catName
+            };
+
+            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
+                alert(`Mockup execution success! Added category: "${catName}"`);
+                dynamicCategoryList.push(catName);
+                updateCategoryDropdownUI();
+                catInput.value = "";
+                btn.disabled = false;
+                btn.textContent = "Save Category to Database";
+                return;
+            }
+
+            try {
+                await fetch(GAS_DEPLOYMENT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dataPayload)
+                });
+                
+                alert(`✓ Category "${catName}" added successfully to the Google Sheet!`);
+                catInput.value = "";
+                fetchActiveSheetsDatabase(); // Reload lists instantly
             } catch (err) {
-                console.error("Sheets dataset sync dropped:", err);
+                alert("Network communication timeout: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Save Category to Database";
             }
         }
 
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
-            container.innerHTML = inventoryDataset.map(item => `
-                <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all">
-                    <span class="text-xs font-semibold tracking-tight text-[var(--text)] max-w-[240px]">${item.name}</span>
-                    <input type="number" 
-                           id="input_${item.id}" 
-                           value="${item.current}" 
-                           class="stock-input w-16 py-1.5 rounded-lg text-sm"
-                           onchange="updateLocalCacheValue('${item.id}', this.value)">
-                </div>
-            `).join('');
+            container.innerHTML = "";
+
+            AREALIST.forEach(area => {
+                const areaItems = inventoryDataset.filter(item => item.area === area);
+                if (areaItems.length === 0) return;
+
+                let areaSectionHtml = `
+                    <div class="space-y-2">
+                        <div class="eyebrow px-1 tracking-wider text-[var(--accent)] font-bold">${area} Area</div>
+                        <div class="space-y-2">
+                `;
+
+                areaSectionHtml += areaItems.map(item => `
+                    <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] transition-all">
+                        <div>
+                            <p class="text-xs font-semibold tracking-tight text-[var(--text)] max-w-[220px]">${item.name}</p>
+                            <p class="text-[9px] text-[var(--text-dim)] font-medium tracking-normal">${item.category}</p>
+                        </div>
+                        <input type="number" 
+                               id="input_${item.id}" 
+                               value="${item.current}" 
+                               class="stock-input w-16 py-1.5 rounded-lg text-sm"
+                               onchange="updateLocalCacheValue('${item.id}', this.value)">
+                    </div>
+                `).join('');
+
+                areaSectionHtml += `</div></div>`;
+                container.innerHTML += areaSectionHtml;
+            });
         }
 
         function addNewItemByLeader() {
             const nameInput = document.getElementById('new-item-name');
             const name = nameInput.value.trim();
-            if(!name) return;
+            const area = document.getElementById('new-item-area').value;
+            const category = document.getElementById('new-item-cat').value;
             
+            if(!name) return;
             rumbleDevice(30);
+
             const customId = "custom_" + Date.now();
-            const newItemObj = { id: customId, name: name, current: 0, min_required: 10 };
+            const newItemObj = { id: customId, name: name, current: 0, min_required: 10, area: area, category: category };
             
             inventoryDataset.push(newItemObj);
             newlyAddedCustomItems.push(newItemObj);
@@ -299,8 +406,11 @@
 
                 tbodyHtml += `
                     <tr>
-                        <td class="text-xs font-semibold text-left">${item.name}</td>
-                        <td class="num font-medium">${item.min_required}</td>
+                        <td class="text-xs font-semibold text-left">
+                            <div>${item.name}</div>
+                            <div class="text-[9px] text-[var(--text-dim)] font-medium">${item.category}</div>
+                        </td>
+                        <td class="text-xs text-[var(--text-mut)] font-medium text-right">${item.area}</td>
                         <td class="num font-bold ${item.current < item.min_required ? 'text-[var(--alert)]' : ''}">${item.current}</td>
                         <td>${statusBadge}</td>
                     </tr>
@@ -310,8 +420,8 @@
                     procHtml += `
                         <div class="flex justify-between items-center pt-2 first:pt-0">
                             <div>
-                                <p class="text-xs font-semibold">${item.name}</p>
-                                <p class="text-[10px]" style="color:var(--text-dim);">Shortfall order target: ${delta} items</p>
+                                <p class="text-xs font-semibold">${item.name} (${item.area})</p>
+                                <p class="text-[10px]" style="color:var(--text-dim);">${item.category} shortfall: +${delta} units</p>
                             </div>
                             <span class="num font-bold text-sm text-[var(--attention)]">+${delta}</span>
                         </div>
@@ -319,8 +429,8 @@
                 }
             });
 
-            tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No rows cached.</td></tr>`;
-            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ System reserves look stable.</p>`;
+            tbody.innerHTML = tbodyHtml || `<tr><td colspan="4" class="text-center p-4 text-[var(--text-dim)]">No entries registered.</td></tr>`;
+            procList.innerHTML = procHtml || `<p class="text-xs text-center py-4 text-[var(--ok)] font-medium">✓ All material reserves metrics nominal.</p>`;
             
             document.getElementById('kpi-critical-count').textContent = criticalCount;
             document.getElementById('kpi-procure-count').textContent = procureCount;
@@ -331,7 +441,6 @@
             if (targetItem) targetItem.current = parseInt(value) || 0;
         }
 
-        /* ── Dynamic Ordinal Timestamp Calculator ── */
         function getFormattedTimestamp() {
             const now = new Date();
             const day = now.getDate();
@@ -348,7 +457,6 @@
             return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} — ${hrs}:${mins}`;
         }
 
-        /* ── POST Request Data Submitter ── */
         async function submitWeeklyStock() {
             rumbleDevice(60);
             const submitBtn = document.getElementById('submit-btn');
@@ -363,32 +471,32 @@
             };
 
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                alert(`No Apps Script URL Found.\nLocal submission generation simulation success:\n\nTimestamp generated: ${dataPayload.timestamp}`);
+                alert(`Count locally generated successfully!\n\nTimestamp format check:\n[ ${dataPayload.timestamp} ]`);
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Submit Weekly Count";
                 return;
             }
 
             try {
-                const response = await fetch(GAS_DEPLOYMENT_URL, {
+                await fetch(GAS_DEPLOYMENT_URL, {
                     method: "POST",
                     mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(dataPayload)
                 });
-                
-                alert("✓ Stock records updated in master workbook!");
+                alert("✓ Stock records updated in master spreadsheet!");
                 newlyAddedCustomItems = [];
                 fetchActiveSheetsDatabase();
-            } catch (err) {
-                alert("Network communication timeout: " + err);
-            } finally {
+            } catch (err) { alert("Network storage sync dropped: " + err); }
+            finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Submit Weekly Count";
             }
         }
 
-        /* ── System Access Authorization Controls (PIN) ── */
+        /* ── PIN Authentication ── */
+        let inputPin = "";
+        const MASTER_PIN_STORE = "3653";
         function pressKey(n) {
             if (inputPin.length >= 4) return;
             rumbleDevice(40); inputPin += n; renderPinDots();
@@ -404,7 +512,7 @@
             }
         }
         function verifyPin() {
-            if (inputPin === MASTER_PIN) {
+            if (inputPin === MASTER_PIN_STORE) {
                 inputPin = ""; renderPinDots(); rumbleDevice([80, 50, 80]);
                 isManagerAuthenticated = true; switchTab('mgr');
             } else {
@@ -438,23 +546,19 @@
             }
         }
 
-        /* ── Automation Environment Themes & Clock Sync ── */
+        /* ── Themes & Utility Engines ── */
         function synchronizeSystemTheme() {
             const h = new Date().getHours();
             const b = document.getElementById('app-body');
             const i = document.getElementById('theme-indicator');
             if (h >= 6 && h < 18) {
-                b.classList.remove('dark');
-                i.textContent = "Daylight Mode";
+                b.classList.remove('dark'); i.textContent = "Daylight Mode";
             } else {
-                b.classList.add('dark');
-                i.textContent = "Night Ops Mode";
+                b.classList.add('dark'); i.textContent = "Night Ops Mode";
             }
         }
         function toggleContrast() {
-            rumbleDevice(30);
-            const b = document.getElementById('app-body');
-            b.classList.toggle('hc');
+            rumbleDevice(30); const b = document.getElementById('app-body'); b.classList.toggle('hc');
             document.getElementById('hc-btn').classList.toggle('on', b.classList.contains('hc'));
         }
         function rumbleDevice(d) { if ('vibrate' in navigator) navigator.vibrate(d); }
