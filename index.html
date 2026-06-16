@@ -96,12 +96,12 @@
             <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--border);">
                 <div>
                     <h3 class="font-semibold text-sm">Farm Inventory Logs</h3>
-                    <p class="text-xs" style="color:var(--text-mut);">Key in values found across farm operational areas</p>
+                    <p class="text-xs" style="color:var(--text-mut);">Key in values found across farm operational fields</p>
                 </div>
             </div>
             
             <div id="leader-items-container" class="space-y-6">
-                <p class="text-xs text-center text-[var(--text-dim)] py-4">Syncing with system checklist parameters...</p>
+                <p class="text-xs text-center text-[var(--text-dim)] py-4">Syncing configuration data matrix tables...</p>
             </div>
 
             <div class="pt-4 space-y-2.5 shadow-xs p-3 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
@@ -111,12 +111,14 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Target Area</label>
-                        <select id="new-item-area" class="select-custom w-full rounded-xl bg-[var(--surface)]"></select>
+                        <select id="new-item-area" class="select-custom w-full rounded-xl bg-[var(--surface)]">
+                            <option>Syncing...</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold mb-1 text-[var(--text-mut)]">Category</label>
                         <select id="new-item-cat" class="select-custom w-full rounded-xl bg-[var(--surface)]">
-                            <option>Syncing list...</option>
+                            <option>Syncing...</option>
                         </select>
                     </div>
                 </div>
@@ -133,17 +135,26 @@
                 <button onclick="addNewItemByLeader()" class="w-full py-2.5 rounded-xl text-xs font-bold text-white transition-transform active:scale-95" style="background:var(--accent);">+ Add Item to Checklist</button>
             </div>
 
-            <div class="pt-2">
+            <div class="pt-2 grid grid-cols-2 gap-2">
                 <details class="group border border-[var(--border)] rounded-2xl p-2 bg-[var(--bg-soft)] transition-all">
-                    <summary class="list-none flex justify-between items-center text-xs font-semibold cursor-pointer px-2 text-[var(--text-mut)] group-open:pb-2">
-                        <span>🛠️ Add New Category to System</span>
-                        <span class="transition-transform group-open:rotate-180 text-[10px]">▼</span>
+                    <summary class="list-none flex justify-between items-center text-[10px] font-bold cursor-pointer px-1 text-[var(--text-mut)]">
+                        <span>🛠️ New Category</span>
+                        <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
                     </summary>
-                    <div class="space-y-2 p-1 border-t border-[var(--border)] pt-3">
-                        <input type="text" id="new-category-name" placeholder="E.g., Safety Gear, Plumbing..." class="w-full text-xs px-3 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
-                        <button id="add-cat-btn" onclick="submitNewCategoryToSheets()" class="w-full py-2 rounded-xl text-xs font-bold text-white bg-slate-700 active:scale-95 transition-all">
-                            Save Category to Database
-                        </button>
+                    <div class="space-y-2 pt-2 mt-2 border-t border-[var(--border)]">
+                        <input type="text" id="new-category-name" placeholder="Name..." class="w-full text-xs px-2 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none">
+                        <button id="add-cat-btn" onclick="submitNewCategoryToSheets()" class="w-full py-1.5 rounded-lg text-[10px] font-bold text-white bg-slate-700">Save</button>
+                    </div>
+                </details>
+
+                <details class="group border border-[var(--border)] rounded-2xl p-2 bg-[var(--bg-soft)] transition-all">
+                    <summary class="list-none flex justify-between items-center text-[10px] font-bold cursor-pointer px-1 text-[var(--text-mut)]">
+                        <span>🌊 New Target Area</span>
+                        <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
+                    </summary>
+                    <div class="space-y-2 pt-2 mt-2 border-t border-[var(--border)]">
+                        <input type="text" id="new-area-name" placeholder="Processing Area..." class="w-full text-xs px-2 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none">
+                        <button id="add-area-btn" onclick="submitNewAreaToSheets()" class="w-full py-1.5 rounded-lg text-[10px] font-bold text-white bg-slate-700">Save</button>
                     </div>
                 </details>
             </div>
@@ -236,84 +247,81 @@
             <span class="nav-label">Ops Home</span>
         </button>
         <button onclick="switchTab('mgr')" id="nav-mgr-btn" class="nav-btn flex flex-col items-center gap-1 py-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.954 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.954 11.954 0 0112 2.944a11.955 11.955 0 01-7.618 3.013C5.4 14.828 9.214 20.218 12 22a11.954 11.954 0 007.618-16.043z"></path></svg>
             <span class="nav-label">Manager</span>
         </button>
     </nav>
 
     <script>
-        // PASTE YOUR RE-DEPLOYED GOOGLE APPS SCRIPT URL STRING HERE:
+        // PASTE YOUR RE-DEPLOYED GOOGLE APPS SCRIPT URL HERE:
         const GAS_DEPLOYMENT_URL = "https://script.google.com/macros/s/AKfycbxVLx1SwRZDBfN0u_cYns7zyCDpr47deF8K7GXWS6JaYrMA0FuhM9lvyrFfJ-uORNPq/exec"; 
         
         const MASTER_PIN = "3653";
-        const AREALIST = ["Sea Cage", "Farm Maintenance", "Spawning & Spat", "Staff Welfare"];
+        let isManagerAuthenticated = false;
+        let AREALIST = ["Sea Cage", "Farm Maintenance", "Spawning & Spat", "Staff Welfare"];
         let dynamicCategoryList = [];
         let inventoryDataset = [];
         let newlyAddedCustomItems = [];
 
         window.addEventListener('DOMContentLoaded', () => {
-            initAreaSelector();
             fetchActiveSheetsDatabase();
             initClockEngine();
         });
 
-        function initAreaSelector() {
+        function updateSelectorsUI() {
             document.getElementById('new-item-area').innerHTML = AREALIST.map(a => `<option value="${a}">${a}</option>`).join('');
-        }
-
-        function updateCategoryDropdownUI() {
             document.getElementById('new-item-cat').innerHTML = dynamicCategoryList.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        async function fetchActiveSheetsDatabase() {
-            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                // Pre-populated data registry directly synced from your uploaded table sheet
-                dynamicCategoryList = ["Beverages & Food", "Cleaning & Hygiene", "Electrical & Utilities", "Tools & Maintenance", "Equipment & Machinery", "Office Supplies", "Processing Supplies"];
-                inventoryDataset = [
-                    { id: "i_1", name: "Mineral water (500 mL)", current: 10, min_required: 10, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
-                    { id: "i_2", name: "Cola", current: 3, min_required: 3, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
-                    { id: "i_3", name: "Hundred+", current: 1, min_required: 1, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
-                    { id: "i_4", name: "Snacks", current: 2, min_required: 2, area: "Staff Welfare", category: "Beverages & Food", unit: "Packs" },
-                    
-                    { id: "i_5", name: "Normal Hand soap", current: 1, min_required: 1, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Units" },
-                    { id: "i_6", name: "Tissue (Roll type)", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Packs" },
-                    { id: "i_7", name: "Dishwashing detergent liquid", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Units" },
-                    { id: "i_8", name: "Plastic bag (trash)", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Packs" },
-                    
-                    { id: "i_9", name: "Batteries (AA)", current: 1, min_required: 1, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Packs" },
-                    { id: "i_10", name: "Batteries (AAA)", current: 1, min_required: 1, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Packs" },
-                    { id: "i_11", name: "Extension wires", current: 2, min_required: 2, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Units" },
-                    
-                    { id: "i_12", name: "Cutting discs", current: 10, min_required: 10, area: "Farm Maintenance", category: "Tools & Maintenance", unit: "Units" },
-                    { id: "i_13", name: "Kitchen scissors", current: 3, min_required: 3, area: "Staff Welfare", category: "Tools & Maintenance", unit: "Units" },
-                    
-                    { id: "i_14", name: "0.5 HP water pump", current: 2, min_required: 2, area: "Spawning & Spat", category: "Equipment & Machinery", unit: "Units" },
-                    
-                    { id: "i_15", name: "Envelope", current: 2, min_required: 2, area: "Staff Welfare", category: "Office Supplies", unit: "Packs" },
-                    { id: "i_16", name: "Board marker", current: 3, min_required: 3, area: "Staff Welfare", category: "Office Supplies", unit: "Set" },
-                    { id: "i_17", name: "A4 paper", current: 1, min_required: 1, area: "Staff Welfare", category: "Office Supplies", unit: "Units" },
-                    { id: "i_18", name: "Tape", current: 2, min_required: 2, area: "Staff Welfare", category: "Office Supplies", unit: "Units" },
-                    
-                    { id: "i_19", name: "Processing ice (10 kg)", current: 2, min_required: 2, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" },
-                    { id: "i_20", name: "Processing hand soap", current: 1, min_required: 1, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" },
-                    { id: "i_21", name: "Processing disinfectant", current: 3, min_required: 3, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" }
-                ];
-                updateCategoryDropdownUI();
+        /* ── Dynamic JSONP Callback Handler Clears All Startup Browser Crashes ── */
+        window.handleGoogleSheetsResponse = function(resData) {
+            if (resData && resData.status === "success") {
+                if(resData.data && resData.data.length > 0) inventoryDataset = resData.data;
+                if(resData.categories && resData.categories.length > 0) dynamicCategoryList = resData.categories;
+                if(resData.areas && resData.areas.length > 0) AREALIST = resData.areas;
+                
+                updateSelectorsUI();
                 renderLeaderInputForm();
                 renderManagerLedger();
-                return;
             }
-            try {
-                const response = await fetch(`${GAS_DEPLOYMENT_URL}?action=getItems&pin=${MASTER_PIN}`);
-                const resData = await response.json();
-                if (resData.status === "success") {
-                    inventoryDataset = resData.data || [];
-                    dynamicCategoryList = resData.categories || [];
-                    updateCategoryDropdownUI();
-                    renderLeaderInputForm();
-                    renderManagerLedger();
-                }
-            } catch (err) { console.error("Sheets connection configuration missing:", err); }
+        };
+
+        async function fetchActiveSheetsDatabase() {
+            // High-fidelity checklist baseline 
+            dynamicCategoryList = ["Beverages & Food", "Cleaning & Hygiene", "Electrical & Utilities", "Tools & Maintenance", "Equipment & Machinery", "Office Supplies", "Processing Supplies"];
+            inventoryDataset = [
+                { id: "i_1", name: "Mineral water (500 mL)", current: 10, min_required: 10, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
+                { id: "i_2", name: "Cola", current: 3, min_required: 3, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
+                { id: "i_3", name: "Hundred+", current: 1, min_required: 1, area: "Staff Welfare", category: "Beverages & Food", unit: "Cartons" },
+                { id: "i_4", name: "Snacks", current: 2, min_required: 2, area: "Staff Welfare", category: "Beverages & Food", unit: "Packs" },
+                { id: "i_5", name: "Normal Hand soap", current: 1, min_required: 1, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Units" },
+                { id: "i_6", name: "Tissue (Roll type)", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Packs" },
+                { id: "i_7", name: "Dishwashing detergent liquid", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Units" },
+                { id: "i_8", name: "Plastic bag (trash)", current: 2, min_required: 2, area: "Staff Welfare", category: "Cleaning & Hygiene", unit: "Packs" },
+                { id: "i_9", name: "Batteries (AA)", current: 1, min_required: 1, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Packs" },
+                { id: "i_10", name: "Batteries (AAA)", current: 1, min_required: 1, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Packs" },
+                { id: "i_11", name: "Extension wires", current: 2, min_required: 2, area: "Farm Maintenance", category: "Electrical & Utilities", unit: "Units" },
+                { id: "i_12", name: "Cutting discs", current: 10, min_required: 10, area: "Farm Maintenance", category: "Tools & Maintenance", unit: "Units" },
+                { id: "i_13", name: "Kitchen scissors", current: 3, min_required: 3, area: "Staff Welfare", category: "Tools & Maintenance", unit: "Units" },
+                { id: "i_14", name: "0.5 HP water pump", current: 2, min_required: 2, area: "Spawning & Spat", category: "Equipment & Machinery", unit: "Units" },
+                { id: "i_15", name: "Envelope", current: 2, min_required: 2, area: "Staff Welfare", category: "Office Supplies", unit: "Packs" },
+                { id: "i_16", name: "Board marker", current: 3, min_required: 3, area: "Staff Welfare", category: "Office Supplies", unit: "Set" },
+                { id: "i_17", name: "A4 paper", current: 1, min_required: 1, area: "Staff Welfare", category: "Office Supplies", unit: "Units" },
+                { id: "i_18", name: "Tape", current: 2, min_required: 2, area: "Staff Welfare", category: "Office Supplies", unit: "Units" },
+                { id: "i_19", name: "Processing ice (10 kg)", current: 2, min_required: 2, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" },
+                { id: "i_20", name: "Processing hand soap", current: 1, min_required: 1, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" },
+                { id: "i_21", name: "Processing disinfectant", current: 3, min_required: 3, area: "Spawning & Spat", category: "Processing Supplies", unit: "Units" }
+            ];
+
+            updateSelectorsUI();
+            renderLeaderInputForm();
+            renderManagerLedger();
+
+            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) return;
+
+            const scriptTag = document.createElement("script");
+            scriptTag.src = `${GAS_DEPLOYMENT_URL}?action=getItems&pin=${MASTER_PIN}&callback=handleGoogleSheetsResponse`;
+            document.body.appendChild(scriptTag);
         }
 
         async function submitNewCategoryToSheets() {
@@ -326,59 +334,70 @@
             btn.disabled = true;
 
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                alert(`Added category: "${catName}" locally. Link your Web App URL to save permanently.`);
                 dynamicCategoryList.push(catName);
-                updateCategoryDropdownUI();
-                catInput.value = "";
-                btn.disabled = false;
-                return;
+                updateSelectorsUI();
+                catInput.value = ""; btn.disabled = false; return;
             }
-
             try {
                 await fetch(GAS_DEPLOYMENT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
+                    method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ pin: MASTER_PIN, action: "addCategory", categoryName: catName })
                 });
-                alert(`✓ Category "${catName}" successfully saved to Google Sheet!`);
-                catInput.value = "";
-                fetchActiveSheetsDatabase();
-            } catch (err) { alert("Error: " + err); }
-            finally { btn.disabled = false; }
+                alert(`✓ Category "${catName}" saved!`);
+                catInput.value = ""; fetchActiveSheetsDatabase();
+            } catch (err) { alert("Error: " + err); } finally { btn.disabled = false; }
+        }
+
+        async function submitNewAreaToSheets() {
+            const areaInput = document.getElementById('new-area-name');
+            const areaName = areaInput.value.trim();
+            if (!areaName) return;
+            
+            rumbleDevice(50);
+            const btn = document.getElementById('add-area-btn');
+            btn.disabled = true;
+
+            if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
+                AREALIST.push(areaName);
+                updateSelectorsUI();
+                renderLeaderInputForm();
+                areaInput.value = ""; btn.disabled = false; return;
+            }
+            try {
+                await fetch(GAS_DEPLOYMENT_URL, {
+                    method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ pin: MASTER_PIN, action: "addArea", areaName: areaName })
+                });
+                alert(`✓ Target area "${areaName}" saved to Google Sheet workbook!`);
+                areaInput.value = ""; fetchActiveSheetsDatabase();
+            } catch (err) { alert("Error: " + err); } finally { btn.disabled = false; }
         }
 
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
-            if (inventoryDataset.length === 0) {
-                container.innerHTML = `<p class="text-xs text-center text-[var(--text-dim)] py-8">No tracked entries. Add your items below.</p>`;
-                return;
-            }
-
             container.innerHTML = "";
+
             AREALIST.forEach(area => {
                 const areaItems = inventoryDataset.filter(item => item.area === area);
-                if (areaItems.length === 0) return;
-
                 let areaSectionHtml = `
                     <div class="space-y-2">
-                        <div class="eyebrow px-1 tracking-wider text-[var(--accent)] font-bold">${area}</div>
+                        <div class="eyebrow px-1 tracking-wider text-[var(--accent)] font-bold">${area} Area</div>
                         <div class="space-y-2">
                 `;
 
-                areaSectionHtml += areaItems.map(item => `
-                    <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-                        <div>
-                            <p class="text-xs font-semibold text-[var(--text)]">${item.name}</p>
-                            <p class="text-[9px] text-[var(--text-dim)]">${item.category} · Specified in ${item.unit || 'Units'}</p>
+                if (areaItems.length === 0) {
+                    areaSectionHtml += `<p class="text-[10px] italic text-[var(--text-dim)] p-3 text-center bg-[var(--surface-2)] rounded-xl border border-dashed border-[var(--border)]">No active checklist lines currently assigned here.</p>`;
+                } else {
+                    areaSectionHtml += areaItems.map(item => `
+                        <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
+                            <div>
+                                <p class="text-xs font-semibold text-[var(--text)]">${item.name}</p>
+                                <p class="text-[9px] text-[var(--text-dim)]">${item.category} · Specified in ${item.unit || 'Units'}</p>
+                            </div>
+                            <input type="number" id="input_${item.id}" value="${item.current}" class="stock-input w-16 py-1.5 rounded-lg text-sm" onchange="updateLocalCacheValue('${item.id}', this.value)">
                         </div>
-                        <input type="number" 
-                               id="input_${item.id}" 
-                               value="${item.current}" 
-                               class="stock-input w-16 py-1.5 rounded-lg text-sm"
-                               onchange="updateLocalCacheValue('${item.id}', this.value)">
-                    </div>
-                `).join('');
+                    `).join('');
+                }
 
                 areaSectionHtml += `</div></div>`;
                 container.innerHTML += areaSectionHtml;
@@ -445,7 +464,7 @@
                         <div class="flex justify-between items-center pt-2 first:pt-0">
                             <div>
                                 <p class="text-xs font-semibold">${item.name} (${item.area})</p>
-                                <p class="text-[10px]" style="color:var(--text-dim);">${item.category} Shortfall: +${delta} ${item.unit || 'units'}</p>
+                                <p class="text-[10px]" style="color:var(--text-dim);">${item.category} shortfall: +${delta} ${item.unit || 'units'}</p>
                             </div>
                             <span class="num font-bold text-sm text-[var(--attention)]">+${delta}</span>
                         </div>
@@ -466,124 +485,56 @@
         }
 
         function getFormattedTimestamp() {
-            const now = new Date();
-            const day = now.getDate();
+            const now = new Date(); const day = now.getDate();
             const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            let suffix = 'th';
-            if (day === 1 || day === 21 || day === 31) suffix = 'st';
-            else if (day === 2 || day === 22) suffix = 'nd';
-            else if (day === 3 || day === 23) suffix = 'rd';
-            const hrs = String(now.getHours()).padStart(2, '0');
-            const mins = String(now.getMinutes()).padStart(2, '0');
-            return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} — ${hrs}:${mins}`;
+            let suffix = 'th'; if (day === 1 || day === 21 || day === 31) suffix = 'st'; else if (day === 2 || day === 22) suffix = 'nd'; else if (day === 3 || day === 23) suffix = 'rd';
+            return `${day}${suffix} ${months[now.getMonth()]} ${now.getFullYear()} — ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         }
 
         async function submitWeeklyStock() {
             if (inventoryDataset.length === 0) return;
-            rumbleDevice(60);
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-
-            const dataPayload = {
-                pin: MASTER_PIN,
-                timestamp: getFormattedTimestamp(),
-                items: inventoryDataset,
-                newItems: newlyAddedCustomItems
-            };
+            rumbleDevice(60); const submitBtn = document.getElementById('submit-btn'); submitBtn.disabled = true;
+            const dataPayload = { pin: MASTER_PIN, timestamp: getFormattedTimestamp(), items: inventoryDataset, newlyAddedCustomItems };
 
             if (GAS_DEPLOYMENT_URL.includes("YOUR_APPS_SCRIPT_URL")) {
-                alert(`Count Simulated! Link Apps Script URL to save changes permanently.\n\nTimestamp logged: ${dataPayload.timestamp}`);
-                submitBtn.disabled = false;
-                return;
+                alert(`Offline Fail-Safe Count Check OK!`); submitBtn.disabled = false; renderManagerLedger(); return;
             }
-
             try {
-                await fetch(GAS_DEPLOYMENT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(dataPayload)
-                });
-                alert("✓ Stock records updated in master spreadsheet!");
-                newlyAddedCustomItems = [];
-                fetchActiveSheetsDatabase();
-            } catch (err) { alert("Sync dropped: " + err); }
-            finally { submitBtn.disabled = false; }
+                await fetch(GAS_DEPLOYMENT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dataPayload) });
+                alert("✓ Stock records updated in master spreadsheet!"); newlyAddedCustomItems = []; fetchActiveSheetsDatabase();
+            } catch (err) { alert("Sync error: " + err); } finally { submitBtn.disabled = false; }
         }
 
-        /* ── PIN Authentication Controls ── */
-        let inputPin = "";
-        const MASTER_PIN_STORE = "3653";
-        function pressKey(n) {
-            if (inputPin.length >= 4) return;
-            rumbleDevice(40); inputPin += n; renderPinDots();
-            if (inputPin.length === 4) setTimeout(verifyPin, 150);
-        }
+        /* ── PIN Auth Terminal Logic ── */
+        let inputPin = ""; const MASTER_PIN_STORE = "3653";
+        function pressKey(n) { if (inputPin.length >= 4) return; rumbleDevice(40); inputPin += n; renderPinDots(); if (inputPin.length === 4) setTimeout(verifyPin, 150); }
         function clearPin() { rumbleDevice(60); inputPin = ""; renderPinDots(); }
         function renderPinDots() {
             const dots = document.getElementById('pin-dots').children;
             for (let i = 0; i < 4; i++) {
-                const on = i < inputPin.length;
-                dots[i].className = "w-3.5 h-3.5 rounded-full" + (on ? " pin-on" : "");
-                dots[i].style.border = on ? "2px solid var(--accent)" : "2px solid var(--border-2)";
+                const on = i < inputPin.length; dots[i].className = "w-3.5 h-3.5 rounded-full" + (on ? " pin-on" : ""); dots[i].style.border = on ? "2px solid var(--accent)" : "2px solid var(--border-2)";
             }
         }
         function verifyPin() {
-            if (inputPin === MASTER_PIN_STORE) {
-                inputPin = ""; renderPinDots(); rumbleDevice([80, 50, 80]);
-                isManagerAuthenticated = true; switchTab('mgr');
-            } else {
-                rumbleDevice([300, 100, 300]); inputPin = ""; renderPinDots();
-                document.getElementById('pin-dots').animate([
-                    { transform: 'translateX(0)' }, { transform: 'translateX(-8px)' },
-                    { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }
-                ], { duration: 360 });
-            }
+            if (inputPin === MASTER_PIN_STORE) { inputPin = ""; renderPinDots(); rumbleDevice([80, 50, 80]); isManagerAuthenticated = true; switchTab('mgr'); } 
+            else { rumbleDevice([300, 100, 300]); inputPin = ""; renderPinDots(); document.getElementById('pin-dots').animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 360 }); }
         }
         function lockManagerView() { rumbleDevice(100); isManagerAuthenticated = false; switchTab('ops'); }
 
         function switchTab(target) {
-            rumbleDevice(35);
-            const ops = document.getElementById('dashboard-view');
-            const auth = document.getElementById('manager-auth-view');
-            const mgr = document.getElementById('manager-dashboard-view');
-            const oBtn = document.getElementById('nav-ops-btn');
-            const mBtn = document.getElementById('nav-mgr-btn');
-
-            if (target === 'ops') {
-                ops.classList.remove('hidden'); auth.classList.add('hidden'); mgr.classList.add('hidden');
-                oBtn.classList.add('active'); mBtn.classList.remove('active');
-            } else {
-                ops.classList.add('hidden'); oBtn.classList.remove('active'); mBtn.classList.add('active');
-                if (isManagerAuthenticated) {
-                    mgr.classList.remove('hidden'); auth.classList.add('hidden');
-                } else {
-                    auth.classList.remove('hidden'); mgr.classList.add('hidden');
-                }
-            }
+            rumbleDevice(35); const ops = document.getElementById('dashboard-view'); const auth = document.getElementById('manager-auth-view'); const mgr = document.getElementById('manager-dashboard-view'); const oBtn = document.getElementById('nav-ops-btn'); const mBtn = document.getElementById('nav-mgr-btn');
+            if (target === 'ops') { ops.classList.remove('hidden'); auth.classList.add('hidden'); mgr.classList.add('hidden'); oBtn.classList.add('active'); mBtn.classList.remove('active'); } 
+            else { ops.classList.add('hidden'); oBtn.classList.remove('active'); mBtn.classList.add('active'); if (isManagerAuthenticated) { mgr.classList.remove('hidden'); auth.classList.add('hidden'); } else { auth.classList.remove('hidden'); mgr.classList.add('hidden'); } }
         }
 
         function synchronizeSystemTheme() {
-            const h = new Date().getHours();
-            const b = document.getElementById('app-body');
-            const i = document.getElementById('theme-indicator');
-            if (h >= 6 && h < 18) {
-                b.classList.remove('dark'); i.textContent = "Daylight Mode";
-            } else {
-                b.classList.add('dark'); i.textContent = "Night Ops Mode";
-            }
+            const h = new Date().getHours(); const b = document.getElementById('app-body'); const i = document.getElementById('theme-indicator');
+            if (h >= 6 && h < 18) { b.classList.remove('dark'); i.textContent = "Daylight Mode"; } else { b.classList.add('dark'); i.textContent = "Night Ops Mode"; }
         }
-        function toggleContrast() {
-            rumbleDevice(30); const b = document.getElementById('app-body'); b.classList.toggle('hc');
-            document.getElementById('hc-btn').classList.toggle('on', b.classList.contains('hc'));
-        }
+        function toggleContrast() { rumbleDevice(30); const b = document.getElementById('app-body'); b.classList.toggle('hc'); document.getElementById('hc-btn').classList.toggle('on', b.classList.contains('hc')); }
+         Tar
         function rumbleDevice(d) { if ('vibrate' in navigator) navigator.vibrate(d); }
-        function initClockEngine() {
-            setInterval(() => {
-                document.getElementById('live-clock').textContent = new Date().toTimeString().substring(0, 5);
-                synchronizeSystemTheme();
-            }, 1000);
-        }
+        function initClockEngine() { setInterval(() => { document.getElementById('live-clock').textContent = new Date().toTimeString().substring(0, 5); synchronizeSystemTheme(); }, 1000); }
     </script>
 </body>
 </html>
