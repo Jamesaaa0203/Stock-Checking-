@@ -172,7 +172,7 @@
                         <span class="transition-transform group-open:rotate-180 text-[8px]">▼</span>
                     </summary>
                     <div class="space-y-2 pt-2 mt-2 border-t border-[var(--border)]">
-                        <p class="text-[10px] text-[var(--text-mut)]">Paste your Google Apps Script Web App URL string below to connect all devices immediately:</p>
+                        <p class="text-[10px] text-[var(--text-mut)]">Paste your Google Apps Script Web App URL string below:</p>
                         <input type="text" id="input-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-[11px] px-2.5 py-2 rounded-xl bg-[var(--surface)] border border-[var(--border-2)] text-[var(--text)] outline-none focus:border-[var(--accent)]">
                         <button onclick="saveDatabaseConnectionUrl()" class="w-full py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm" style="background:var(--accent);">
                             Connect Sheet Database
@@ -285,7 +285,7 @@
         let newlyAddedCustomItems = [];
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadSavedDatabaseUrl(); // Check if link is cached locally
+            loadSavedDatabaseUrl();
             updateSelectorsUI();
             fetchActiveSheetsDatabase();
             initClockEngine();
@@ -306,16 +306,12 @@
             const urlValue = document.getElementById('input-gas-url').value.trim();
             if(!urlValue) {
                 localStorage.removeItem("bon_aqua_gas_url");
-                alert("Connection URL cleared. Operating in offline sandbox mode.");
+                alert("Connection URL cleared.");
                 location.reload();
                 return;
             }
-            if(!urlValue.startsWith("https://script.google.com")) {
-                alert("Invalid URL. Make sure it begins with 'https://script.google.com/macros/s/'");
-                return;
-            }
             localStorage.setItem("bon_aqua_gas_url", urlValue);
-            alert("🚀 Database link securely saved to device memory! Reloading data connection...");
+            alert("🚀 Database link securely saved! Reloading connection...");
             location.reload();
         }
 
@@ -326,11 +322,10 @@
 
         window.handleGoogleSheetsResponse = function(resData) {
             if (resData && resData.status === "success") {
-                if(resData.data && resData.data.length > 0) inventoryDataset = resData.data;
+                if(resData.data) inventoryDataset = resData.data;
                 if(resData.categories && resData.categories.length > 0) dynamicCategoryList = resData.categories;
                 if(resData.areas && resData.areas.length > 0) AREALIST = resData.areas;
                 
-                // Mirror network rows locally to keep state robust across reloads
                 localStorage.setItem("cached_inventory", JSON.stringify(inventoryDataset));
                 localStorage.setItem("cached_categories", JSON.stringify(dynamicCategoryList));
                 localStorage.setItem("cached_areas", JSON.stringify(AREALIST));
@@ -342,7 +337,6 @@
         };
 
         async function fetchActiveSheetsDatabase() {
-            // Check for persistent local state memory fallback blocks first
             const localCheck = localStorage.getItem("cached_inventory");
             const localCats = localStorage.getItem("cached_categories");
             const localAreas = localStorage.getItem("cached_areas");
@@ -382,7 +376,7 @@
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ pin: MASTER_PIN, action: "addCategory", categoryName: catName })
                 });
-                alert(`✓ Category "${catName}" sent! Reloading database...`);
+                alert(`✓ Category "${catName}" sent!`);
                 catInput.value = ""; fetchActiveSheetsDatabase();
             } catch (err) { alert("Error: " + err); } finally { btn.disabled = false; }
         }
@@ -408,7 +402,7 @@
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ pin: MASTER_PIN, action: "addArea", areaName: areaName })
                 });
-                alert(`✓ Area "${areaName}" sent! Reloading database...`);
+                alert(`✓ Area "${areaName}" sent!`);
                 areaInput.value = ""; fetchActiveSheetsDatabase();
             } catch (err) { alert("Error: " + err); } finally { btn.disabled = false; }
         }
@@ -416,6 +410,11 @@
         function renderLeaderInputForm() {
             const container = document.getElementById('leader-items-container');
             container.innerHTML = "";
+
+            if (inventoryDataset.length === 0) {
+                container.innerHTML = `<p class="text-xs text-center text-[var(--text-dim)] py-8 bg-[var(--surface-2)] border border-dashed border-[var(--border)] rounded-2xl">No items setup in Master_Items tab yet.</p>`;
+                return;
+            }
 
             AREALIST.forEach(area => {
                 const areaItems = inventoryDataset.filter(item => item.area === area);
@@ -426,13 +425,13 @@
                 `;
 
                 if (areaItems.length === 0) {
-                    areaSectionHtml += `<p class="text-[10px] italic text-[var(--text-dim)] p-3 text-center bg-[var(--surface-2)] rounded-xl border border-dashed border-[var(--border)]">No items assigned here yet.</p>`;
+                    areaSectionHtml += `<p class="text-[10px] italic text-[var(--text-dim)] p-3 text-center bg-[var(--surface-2)] rounded-xl border border-dashed border-[var(--border)]">No items here yet.</p>`;
                 } else {
                     areaSectionHtml += areaItems.map(item => `
                         <div id="row_${item.id}" class="flex justify-between items-center p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
                             <div>
                                 <p class="text-xs font-semibold text-[var(--text)]">${item.name}</p>
-                                <p class="text-[9px] text-[var(--text-dim)]">${item.category} · Specified in ${item.unit || 'Units'}</p>
+                                <p class="text-[9px] text-[var(--text-dim)]">${item.category} · In ${item.unit || 'Units'}</p>
                             </div>
                             <input type="number" id="input_${item.id}" value="${item.current}" class="stock-input w-16 py-1.5 rounded-lg text-sm" onchange="updateLocalCacheValue('${item.id}', this.value)">
                         </div>
@@ -536,11 +535,12 @@
         async function submitWeeklyStock() {
             if (inventoryDataset.length === 0) return;
             rumbleDevice(60); const submitBtn = document.getElementById('submit-btn'); submitBtn.disabled = true;
+            
+            // TYPO FIXED: changed 'newlyAddedCustomItems' to 'newItems' to match backend configuration expectations!
             const dataPayload = { pin: MASTER_PIN, timestamp: getFormattedTimestamp(), items: inventoryDataset, newItems: newlyAddedCustomItems };
 
             if (!GAS_DEPLOYMENT_URL) {
-                alert(`⚠️ Offline Local Save Success!\n\nThis device has logged counts locally, but to share data with other phones, paste your script link in the setup panel.`);
-                submitBtn.disabled = false; renderManagerLedger(); return;
+                alert(`⚠️ Operating Offline.`); submitBtn.disabled = false; renderManagerLedger(); return;
             }
             try {
                 await fetch(GAS_DEPLOYMENT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dataPayload) });
