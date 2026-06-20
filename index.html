@@ -645,8 +645,9 @@ let GAS_URL         = "";
 let isAuthenticated = false;
 let activeMgrTab    = "overview";
 let items      = [];
+let currentWorkerArea = null; // never persisted — worker re-picks every time the app opens
 let areas      = ["Sea Cage Area","Farm Maintenance Area","Spawning & Spat Area","Staff Welfare Area","Processing Area","Office Area"];
-let categories = ["Beverages & Foods","Cleaning & Hygiene","Electrical & Utilities","Tools & Maintenance","Equipment & Machinery","Office Supplies","Processing Supplies","First Aid Supplies"];
+    let categories = ["Beverages & Foods","Cleaning & Hygiene","Electrical & Utilities","Tools & Maintenance","Equipment & Machinery","Office Supplies","Processing Supplies","First Aid Supplies"];
 
 /* ── INIT ── */
 window.addEventListener("DOMContentLoaded", () => {
@@ -710,46 +711,97 @@ function renderWorkerForm() {
 
     if (items.length === 0) {
         container.innerHTML = '<div class="area-section"><div class="area-hdr"><span class="area-hdr-name">No items configured</span></div><p class="empty-msg">Manager can add items in the Item Setup tab.</p></div>';
+        toggleSubmitVisibility(false);
         return;
     }
 
-    // Derive sections from actual item data — never depends on the areas cache.
-    // Respects the order of the configured areas list, then appends any extras.
+    // Always ask which area on open — nothing remembered between sessions.
+    if (!currentWorkerArea) {
+        renderAreaPicker(container);
+        toggleSubmitVisibility(false);
+        return;
+    }
+
+    const areaItems = items.filter(i => i.area === currentWorkerArea);
+    let html = areaChangeBar();
+
+    if (!areaItems.length) {
+        html += '<div class="area-section"><p class="empty-msg">No items configured for this area yet.</p></div>';
+        container.innerHTML = html;
+        toggleSubmitVisibility(true);
+        return;
+    }
+
+    html += '<div class="area-section">';
+    html += '<div class="area-hdr"><span class="area-hdr-name">' + currentWorkerArea + '</span><span class="area-hdr-count">' + areaItems.length + ' items</span></div>';
+
+    areaItems.forEach(item => {
+        const ratio      = item.min_required > 0 ? item.current_count / item.min_required : 1;
+        const isCritical = ratio <= 0.4;
+        const isLow      = ratio < 1 && !isCritical;
+        const cntClass   = "cnt" + (isCritical ? " critical" : isLow ? " low" : "");
+        const dot        = isCritical ? '<span class="sdot d"></span>' : isLow ? '<span class="sdot w"></span>' : '';
+
+        html += '<div class="item-row">';
+        html +=   '<div class="item-info">';
+        html +=     '<span class="item-name">' + dot + item.name + '</span>';
+        html +=     '<span class="item-meta">' + item.category + ' · ' + (item.unit || 'units') + ' · Min ' + item.min_required + '</span>';
+        html +=   '</div>';
+        html +=   '<input type="number" id="inp_' + item.id + '" value="' + item.current_count + '" min="0" class="' + cntClass + '" onchange="localUpdate(\'' + item.id + '\', this.value)">';
+        html += '</div>';
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+    toggleSubmitVisibility(true);
+}
+
+function renderAreaPicker(container) {
     const itemAreas    = [...new Set(items.map(i => i.area).filter(Boolean))];
     const orderedAreas = [
         ...areas.filter(a => itemAreas.includes(a)),
         ...itemAreas.filter(a => !areas.includes(a))
     ];
 
-    let html = "";
+    if (!orderedAreas.length) {
+        container.innerHTML = '<div class="area-section"><p class="empty-msg">No areas configured yet.</p></div>';
+        return;
+    }
 
+    let html = '<p style="font-size:11px;color:var(--dim);">Select your work area · Pilih kawasan kerja</p>';
+    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
     orderedAreas.forEach(area => {
-        const areaItems = items.filter(i => i.area === area);
-        if (!areaItems.length) return;
-
-        html += '<div class="area-section">';
-        html += '<div class="area-hdr"><span class="area-hdr-name">' + area + '</span><span class="area-hdr-count">' + areaItems.length + '</span></div>';
-
-        areaItems.forEach(item => {
-            const ratio      = item.min_required > 0 ? item.current_count / item.min_required : 1;
-            const isCritical = ratio <= 0.4;
-            const isLow      = ratio < 1 && !isCritical;
-            const cntClass   = "cnt" + (isCritical ? " critical" : isLow ? " low" : "");
-            const dot        = isCritical ? '<span class="sdot d"></span>' : isLow ? '<span class="sdot w"></span>' : '';
-
-            html += '<div class="item-row">';
-            html +=   '<div class="item-info">';
-            html +=     '<span class="item-name">' + dot + item.name + '</span>';
-            html +=     '<span class="item-meta">' + item.category + ' · ' + (item.unit || 'units') + ' · Min ' + item.min_required + '</span>';
-            html +=   '</div>';
-            html +=   '<input type="number" id="inp_' + item.id + '" value="' + item.current_count + '" min="0" class="' + cntClass + '" onchange="localUpdate(\'' + item.id + '\', this.value)">';
-            html += '</div>';
-        });
-
-        html += '</div>';
+        const count = items.filter(i => i.area === area).length;
+        html += '<button onclick="selectWorkerArea(\'' + area.replace(/'/g, "\\'") + '\')" class="area-section" style="width:100%;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;text-align:left;">' +
+                '<span style="font-size:14px;font-weight:600;color:var(--text);">' + area + '</span>' +
+                '<span style="font-size:11px;color:var(--dim);">' + count + ' items ›</span>' +
+                '</button>';
     });
+    html += '</div>';
+    container.innerHTML = html;
+}
 
-    container.innerHTML = html || '<div class="area-section"><p class="empty-msg">No items to display.</p></div>';
+function areaChangeBar() {
+    return '<button onclick="changeWorkerArea()" style="display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;padding:0 0 2px;">' +
+           '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.75-7.5"/></svg>' +
+           currentWorkerArea + ' · Change Area</button>';
+}
+
+function selectWorkerArea(area) {
+    rumble(40);
+    currentWorkerArea = area;
+    renderWorkerForm();
+}
+
+function changeWorkerArea() {
+    rumble(30);
+    currentWorkerArea = null;
+    renderWorkerForm();
+}
+
+function toggleSubmitVisibility(show) {
+    const btn = document.getElementById("submit-btn");
+    if (btn) btn.style.display = show ? "" : "none";
 }
 
 function localUpdate(id, val) {
@@ -762,11 +814,13 @@ function localUpdate(id, val) {
 
 /* ── SUBMIT ── */
 async function submitStockCount() {
-    if (!items.length) { alert("No items to submit."); return; }
+    if (!currentWorkerArea) { alert("Please select your area first."); return; }
+    const areaItems = items.filter(i => i.area === currentWorkerArea);
+    if (!areaItems.length) { alert("No items to submit for this area."); return; }
     rumble(60);
     const btn = document.getElementById("submit-btn");
     btn.disabled = true; btn.textContent = "Submitting...";
-    const payload = { pin: APP_PIN, action: "submitCount", timestamp: getTimestamp(), items: items.map(i => ({ id: i.id, current_count: i.current_count })) };
+    const payload = { pin: APP_PIN, action: "submitCount", timestamp: getTimestamp(), items: areaItems.map(i => ({ id: i.id, current_count: i.current_count })) };
 
     if (!GAS_URL) {
         saveLocalState(); renderManagerView();
@@ -776,8 +830,10 @@ async function submitStockCount() {
     try {
         await fetch(GAS_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         rumble([40, 30, 80]);
-        alert("Stock count submitted to Google Sheets.");
+        alert(currentWorkerArea + " stock submitted to Google Sheets.");
         saveLocalState();
+        currentWorkerArea = null; // back to picker for the next area/person
+        renderWorkerForm();
     } catch(e) { alert("Error: " + e.message); }
     finally { btn.disabled = false; btn.textContent = "Submit Stock Count"; }
 }
