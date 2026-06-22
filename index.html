@@ -646,6 +646,7 @@ let isAuthenticated = false;
 let activeMgrTab    = "overview";
 let items      = [];
 let currentWorkerArea = null; // never persisted — worker re-picks every time the app opens
+let loadedCounts = {}; // snapshot of counts at the moment area was selected
 let areas      = ["Sea Cage Area","Farm Maintenance Area","Spawning & Spat Area","Staff Welfare Area","Processing Area","Office Area"];
     let categories = ["Beverages & Foods","Cleaning & Hygiene","Electrical & Utilities","Tools & Maintenance","Equipment & Machinery","Office Supplies","Processing Supplies","First Aid Supplies"];
 
@@ -790,15 +791,32 @@ function areaChangeBar() {
 function selectWorkerArea(area) {
     rumble(40);
     currentWorkerArea = area;
+    loadedCounts = {};
+    items.filter(i => i.area === area).forEach(i => { loadedCounts[i.id] = i.current_count; });
     renderWorkerForm();
 }
-
 function changeWorkerArea() {
     rumble(30);
     currentWorkerArea = null;
     renderWorkerForm();
 }
 
+    function renderSubmitSuccess(area) {
+    const container = document.getElementById("items-container");
+    toggleSubmitVisibility(false);
+    container.innerHTML =
+        '<div class="area-section" style="padding:24px;text-align:center;">' +
+            '<div style="font-size:32px;margin-bottom:12px;">✅</div>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Count Submitted!</div>' +
+            '<div style="font-size:12px;color:var(--dim);margin-bottom:6px;">' + area + '</div>' +
+            '<div style="font-size:11px;color:var(--mut);margin-bottom:22px;line-height:1.6;">Just restocked? Tap Recount to update<br>the list with the new quantities.</div>' +
+            '<div style="display:flex;flex-direction:column;gap:8px;">' +
+                '<button onclick="selectWorkerArea(\'' + area.replace(/'/g, "\\'") + '\')" class="btn">🔄 Recount this area</button>' +
+                '<button onclick="changeWorkerArea()" class="btn" style="background:var(--surface2);color:var(--mut);border:1px solid var(--border);">← Back to areas</button>' +
+            '</div>' +
+        '</div>';
+}
+    
 function toggleSubmitVisibility(show) {
     const btn = document.getElementById("submit-btn");
     if (btn) btn.style.display = show ? "" : "none";
@@ -820,7 +838,12 @@ async function submitStockCount() {
     rumble(60);
     const btn = document.getElementById("submit-btn");
     btn.disabled = true; btn.textContent = "Submitting...";
-    const payload = { pin: APP_PIN, action: "submitCount", timestamp: getTimestamp(), items: areaItems.map(i => ({ id: i.id, current_count: i.current_count })) };
+   const changedItems = areaItems.filter(i => i.current_count !== (loadedCounts[i.id] ?? i.current_count));
+    if (!changedItems.length) {
+        btn.disabled = false; btn.textContent = "Submit Stock Count";
+        saveLocalState(); renderSubmitSuccess(currentWorkerArea); return;
+    }
+    const payload = { pin: APP_PIN, action: "submitCount", timestamp: getTimestamp(), items: changedItems.map(i => ({ id: i.id, current_count: i.current_count })) };
 
     if (!GAS_URL) {
         saveLocalState(); renderManagerView();
@@ -830,10 +853,8 @@ async function submitStockCount() {
     try {
         await fetch(GAS_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         rumble([40, 30, 80]);
-        alert(currentWorkerArea + " stock submitted to Google Sheets.");
         saveLocalState();
-        currentWorkerArea = null; // back to picker for the next area/person
-        renderWorkerForm();
+        renderSubmitSuccess(currentWorkerArea);
     } catch(e) { alert("Error: " + e.message); }
     finally { btn.disabled = false; btn.textContent = "Submit Stock Count"; }
 }
